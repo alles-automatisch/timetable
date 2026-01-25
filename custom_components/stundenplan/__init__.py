@@ -64,8 +64,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Set up platforms
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
-    # Register services
-    await async_setup_services(hass, storage, coordinator)
+    # Register services only once (check if not already registered)
+    if not hass.services.has_service(DOMAIN, SERVICE_SET_SCHEDULE):
+        await async_setup_services(hass)
 
     return True
 
@@ -80,11 +81,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return unload_ok
 
 
-async def async_setup_services(
-    hass: HomeAssistant,
-    storage: StundenplanStorage,
-    coordinator: StundenplanCoordinator,
-) -> None:
+async def async_setup_services(hass: HomeAssistant) -> None:
     """Set up services for Stundenplan."""
 
     async def handle_set_schedule(call: ServiceCall) -> None:
@@ -92,12 +89,32 @@ async def async_setup_services(
         schedule_id = call.data.get(ATTR_SCHEDULE_ID, "default")
         schedule_data = call.data.get(ATTR_SCHEDULE_DATA, {})
 
+        # Get the first entry's storage and coordinator
+        entries = hass.config_entries.async_entries(DOMAIN)
+        if not entries:
+            _LOGGER.error("No TimeTable integration entry found")
+            return
+
+        entry = entries[0]
+        storage = hass.data[DOMAIN][entry.entry_id]["storage"]
+        coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
+
         storage.set_schedule(schedule_id, schedule_data)
         await storage.async_save()
         await coordinator.async_request_refresh()
 
     async def handle_add_lesson(call: ServiceCall) -> None:
         """Handle the add_lesson service."""
+        # Get the first entry's storage and coordinator
+        entries = hass.config_entries.async_entries(DOMAIN)
+        if not entries:
+            _LOGGER.error("No TimeTable integration entry found")
+            return
+
+        entry = entries[0]
+        storage = hass.data[DOMAIN][entry.entry_id]["storage"]
+        coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
+
         schedule_id = call.data.get(ATTR_SCHEDULE_ID, "default")
         weekday = call.data[ATTR_WEEKDAY]
         lesson = call.data[ATTR_LESSON]
@@ -111,6 +128,16 @@ async def async_setup_services(
 
     async def handle_remove_lesson(call: ServiceCall) -> None:
         """Handle the remove_lesson service."""
+        # Get the first entry's storage and coordinator
+        entries = hass.config_entries.async_entries(DOMAIN)
+        if not entries:
+            _LOGGER.error("No TimeTable integration entry found")
+            return
+
+        entry = entries[0]
+        storage = hass.data[DOMAIN][entry.entry_id]["storage"]
+        coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
+
         schedule_id = call.data.get(ATTR_SCHEDULE_ID, "default")
         weekday = call.data[ATTR_WEEKDAY]
         lesson_index = call.data[ATTR_LESSON_INDEX]
@@ -124,6 +151,16 @@ async def async_setup_services(
 
     async def handle_add_vacation(call: ServiceCall) -> None:
         """Handle the add_vacation service."""
+        # Get the first entry's storage and coordinator
+        entries = hass.config_entries.async_entries(DOMAIN)
+        if not entries:
+            _LOGGER.error("No TimeTable integration entry found")
+            return
+
+        entry = entries[0]
+        storage = hass.data[DOMAIN][entry.entry_id]["storage"]
+        coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
+
         vacation = {
             "start_date": call.data[ATTR_VACATION_START],
             "end_date": call.data[ATTR_VACATION_END],
@@ -136,6 +173,16 @@ async def async_setup_services(
 
     async def handle_remove_vacation(call: ServiceCall) -> None:
         """Handle the remove_vacation service."""
+        # Get the first entry's storage and coordinator
+        entries = hass.config_entries.async_entries(DOMAIN)
+        if not entries:
+            _LOGGER.error("No TimeTable integration entry found")
+            return
+
+        entry = entries[0]
+        storage = hass.data[DOMAIN][entry.entry_id]["storage"]
+        coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
+
         vacation_index = call.data[ATTR_VACATION_INDEX]
 
         try:

@@ -48,9 +48,10 @@ class StundenplanCurrentSensor(CoordinatorEntity, SensorEntity):
     ) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator)
-        self._attr_name = "Stundenplan Current"
+        self._attr_name = "TimeTable Current"
         self._attr_unique_id = f"{entry.entry_id}_current"
         self._attr_icon = "mdi:school"
+        self._attr_has_entity_name = False
 
     @property
     def native_value(self) -> str:
@@ -80,9 +81,10 @@ class StundenplanNextSensor(CoordinatorEntity, SensorEntity):
     ) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator)
-        self._attr_name = "Stundenplan Next Lesson"
+        self._attr_name = "TimeTable Next Lesson"
         self._attr_unique_id = f"{entry.entry_id}_next"
         self._attr_icon = "mdi:clock-outline"
+        self._attr_has_entity_name = False
 
     @property
     def native_value(self) -> str | None:

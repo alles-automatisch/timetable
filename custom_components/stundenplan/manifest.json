@@ -4,9 +4,10 @@
   "codeowners": ["@alles-automatisch"],
   "config_flow": true,
   "documentation": "https://github.com/alles-automatisch/timetable",
-  "integration_type": "device",
+  "integration_type": "service",
   "iot_class": "calculated",
   "issue_tracker": "https://github.com/alles-automatisch/timetable/issues",
   "requirements": [],
-  "version": "1.0.0"
+  "version": "1.0.1",
+  "icon": "mdi:school"
 }

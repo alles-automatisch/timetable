@@ -5,6 +5,22 @@ All notable changes to TimeTable will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2025-01-25
+
+### Fixed
+- Fixed 500 Internal Server Error when loading config flow
+- Added missing icon in manifest.json (`mdi:school`)
+- Corrected integration_type from `device` to `service`
+- Fixed service registration conflicts on reload
+- Improved entity naming (changed from "Stundenplan" to "TimeTable")
+- Fixed HACS validation errors in hacs.json
+- Added `_attr_has_entity_name = False` to prevent entity naming issues
+
+### Changed
+- Services now register only once and access storage/coordinator dynamically
+- Entity names updated to use "TimeTable" prefix
+- Simplified hacs.json for better HACS compatibility
+
 ## [1.0.0] - 2025-01-25
 
 ### Added

@@ -32,10 +32,11 @@ class StundenplanIsSchooltimeSensor(CoordinatorEntity, BinarySensorEntity):
     ) -> None:
         """Initialize the binary sensor."""
         super().__init__(coordinator)
-        self._attr_name = "Stundenplan Is Schooltime"
+        self._attr_name = "TimeTable Is Schooltime"
         self._attr_unique_id = f"{entry.entry_id}_is_schooltime"
         self._attr_icon = "mdi:school"
         self._attr_device_class = "occupancy"
+        self._attr_has_entity_name = False
 
     @property
     def is_on(self) -> bool:
