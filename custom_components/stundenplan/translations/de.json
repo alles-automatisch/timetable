@@ -1,0 +1,66 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Stundenplan einrichten",
+        "description": "Konfigurieren Sie Ihren Schulstundenplan",
+        "data": {
+          "name": "Name",
+          "include_weekends": "Wochenenden im Stundenplan einbeziehen"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Stundenplan ist bereits konfiguriert"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Stundenplan Optionen",
+        "description": "Stundenplan-Einstellungen konfigurieren",
+        "data": {
+          "name": "Name",
+          "include_weekends": "Wochenenden im Stundenplan einbeziehen"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "current": {
+        "name": "Aktuelle Stunde"
+      },
+      "next": {
+        "name": "Nächste Stunde"
+      }
+    },
+    "binary_sensor": {
+      "is_schooltime": {
+        "name": "Schulzeit"
+      }
+    }
+  },
+  "services": {
+    "set_schedule": {
+      "name": "Stundenplan setzen",
+      "description": "Einen vollständigen Stundenplan setzen oder aktualisieren"
+    },
+    "add_lesson": {
+      "name": "Stunde hinzufügen",
+      "description": "Eine Stunde zu einem bestimmten Wochentag hinzufügen"
+    },
+    "remove_lesson": {
+      "name": "Stunde entfernen",
+      "description": "Eine Stunde von einem bestimmten Wochentag entfernen"
+    },
+    "add_vacation": {
+      "name": "Ferien hinzufügen",
+      "description": "Einen Ferienzeitraum hinzufügen"
+    },
+    "remove_vacation": {
+      "name": "Ferien entfernen",
+      "description": "Einen Ferienzeitraum entfernen"
+    }
+  }
+}

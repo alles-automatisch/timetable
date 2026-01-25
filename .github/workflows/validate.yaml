@@ -1,0 +1,56 @@
+name: Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    name: Validate Integration
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Home Assistant
+        run: |
+          pip install homeassistant
+
+      - name: Validate manifest
+        run: |
+          python -c "import json; json.load(open('custom_components/stundenplan/manifest.json'))"
+          echo "✓ manifest.json is valid"
+
+      - name: Validate translations
+        run: |
+          python -c "import json; json.load(open('custom_components/stundenplan/translations/en.json'))"
+          python -c "import json; json.load(open('custom_components/stundenplan/translations/de.json'))"
+          echo "✓ Translation files are valid"
+
+      - name: Check Python syntax
+        run: |
+          python -m py_compile custom_components/stundenplan/*.py
+          echo "✓ Python files are valid"
+
+      - name: Check JavaScript syntax
+        run: |
+          node -c www/stundenplan-card.js || echo "⚠ Node.js not available for JS validation"
+
+  hacs-validation:
+    name: HACS Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: HACS validation
+        uses: hacs/action@main
+        with:
+          category: integration

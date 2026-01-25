@@ -1,0 +1,9 @@
+{
+  "name": "TimeTable",
+  "content_in_root": false,
+  "filename": "stundenplan-card.js",
+  "render_readme": true,
+  "domains": ["sensor", "binary_sensor"],
+  "homeassistant": "2024.1.0",
+  "iot_class": "Calculated"
+}

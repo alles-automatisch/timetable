@@ -1,0 +1,43 @@
+"""Binary sensor platform for Stundenplan."""
+from __future__ import annotations
+
+from homeassistant.components.binary_sensor import BinarySensorEntity
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
+
+from .const import DOMAIN
+from .coordinator import StundenplanCoordinator
+
+
+async def async_setup_entry(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
+) -> None:
+    """Set up Stundenplan binary sensor based on a config entry."""
+    coordinator: StundenplanCoordinator = hass.data[DOMAIN][entry.entry_id][
+        "coordinator"
+    ]
+
+    async_add_entities([StundenplanIsSchooltimeSensor(coordinator, entry)])
+
+
+class StundenplanIsSchooltimeSensor(CoordinatorEntity, BinarySensorEntity):
+    """Binary sensor for whether currently in school time."""
+
+    def __init__(
+        self, coordinator: StundenplanCoordinator, entry: ConfigEntry
+    ) -> None:
+        """Initialize the binary sensor."""
+        super().__init__(coordinator)
+        self._attr_name = "Stundenplan Is Schooltime"
+        self._attr_unique_id = f"{entry.entry_id}_is_schooltime"
+        self._attr_icon = "mdi:school"
+        self._attr_device_class = "occupancy"
+
+    @property
+    def is_on(self) -> bool:
+        """Return true if currently in a lesson."""
+        return self.coordinator.data.get("current_lesson") is not None

@@ -1,0 +1,66 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up Timetable",
+        "description": "Configure your school schedule tracker",
+        "data": {
+          "name": "Name",
+          "include_weekends": "Include weekends in schedule"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Timetable is already configured"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Timetable Options",
+        "description": "Configure schedule options",
+        "data": {
+          "name": "Name",
+          "include_weekends": "Include weekends in schedule"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "current": {
+        "name": "Current Lesson"
+      },
+      "next": {
+        "name": "Next Lesson"
+      }
+    },
+    "binary_sensor": {
+      "is_schooltime": {
+        "name": "Is School Time"
+      }
+    }
+  },
+  "services": {
+    "set_schedule": {
+      "name": "Set Schedule",
+      "description": "Set or update a complete schedule"
+    },
+    "add_lesson": {
+      "name": "Add Lesson",
+      "description": "Add a lesson to a specific weekday"
+    },
+    "remove_lesson": {
+      "name": "Remove Lesson",
+      "description": "Remove a lesson from a specific weekday"
+    },
+    "add_vacation": {
+      "name": "Add Vacation",
+      "description": "Add a vacation period"
+    },
+    "remove_vacation": {
+      "name": "Remove Vacation",
+      "description": "Remove a vacation period"
+    }
+  }
+}

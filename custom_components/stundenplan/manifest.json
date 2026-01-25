@@ -1,0 +1,12 @@
+{
+  "domain": "stundenplan",
+  "name": "TimeTable",
+  "codeowners": ["@alles-automatisch"],
+  "config_flow": true,
+  "documentation": "https://github.com/alles-automatisch/timetable",
+  "integration_type": "device",
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/alles-automatisch/timetable/issues",
+  "requirements": [],
+  "version": "1.0.0"
+}

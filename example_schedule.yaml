@@ -1,0 +1,306 @@
+# Example TimeTable Schedule Configuration
+# Copy this to your Home Assistant configuration or use via Developer Tools → Services
+
+# Example 1: Add a complete weekly schedule
+service: stundenplan.set_schedule
+data:
+  schedule_id: default
+  schedule_data:
+    name: "My School Schedule 2025"
+    include_weekends: false
+    lessons:
+      monday:
+        - subject: "Mathematics"
+          start_time: "08:00"
+          end_time: "08:45"
+          room: "101"
+          teacher: "Mr. Smith"
+          color: "#FF5722"
+          icon: "mdi:calculator"
+        - subject: "English"
+          start_time: "08:50"
+          end_time: "09:35"
+          room: "203"
+          teacher: "Mrs. Johnson"
+          color: "#2196F3"
+          icon: "mdi:book-open-variant"
+        - subject: "Free Period"
+          start_time: "09:35"
+          end_time: "09:45"
+          notes: "Break time"
+        - subject: "Physics"
+          start_time: "09:45"
+          end_time: "10:30"
+          room: "Lab 1"
+          teacher: "Dr. Brown"
+          color: "#9C27B0"
+          icon: "mdi:flask"
+        - subject: "History"
+          start_time: "10:40"
+          end_time: "11:25"
+          room: "205"
+          teacher: "Ms. Davis"
+          color: "#FF9800"
+          icon: "mdi:castle"
+
+      tuesday:
+        - subject: "Chemistry"
+          start_time: "08:00"
+          end_time: "08:45"
+          room: "Lab 2"
+          teacher: "Dr. Wilson"
+          color: "#4CAF50"
+          icon: "mdi:test-tube"
+        - subject: "Geography"
+          start_time: "08:50"
+          end_time: "09:35"
+          room: "104"
+          teacher: "Mr. Taylor"
+          color: "#00BCD4"
+          icon: "mdi:earth"
+        - subject: "P.E."
+          start_time: "09:45"
+          end_time: "10:30"
+          room: "Gym"
+          teacher: "Coach Anderson"
+          color: "#F44336"
+          icon: "mdi:run"
+        - subject: "Art"
+          start_time: "10:40"
+          end_time: "11:25"
+          room: "Art Studio"
+          teacher: "Ms. Martinez"
+          color: "#E91E63"
+          icon: "mdi:palette"
+
+      wednesday:
+        - subject: "Mathematics"
+          start_time: "08:00"
+          end_time: "08:45"
+          room: "101"
+          teacher: "Mr. Smith"
+          color: "#FF5722"
+          icon: "mdi:calculator"
+        - subject: "Biology"
+          start_time: "08:50"
+          end_time: "09:35"
+          room: "Lab 3"
+          teacher: "Dr. Lee"
+          color: "#8BC34A"
+          icon: "mdi:leaf"
+        - subject: "Computer Science"
+          start_time: "09:45"
+          end_time: "10:30"
+          room: "Computer Lab"
+          teacher: "Mr. Chen"
+          color: "#607D8B"
+          icon: "mdi:laptop"
+        - subject: "Music"
+          start_time: "10:40"
+          end_time: "11:25"
+          room: "Music Room"
+          teacher: "Ms. Garcia"
+          color: "#9C27B0"
+          icon: "mdi:music"
+
+      thursday:
+        - subject: "English"
+          start_time: "08:00"
+          end_time: "08:45"
+          room: "203"
+          teacher: "Mrs. Johnson"
+          color: "#2196F3"
+          icon: "mdi:book-open-variant"
+        - subject: "Physics"
+          start_time: "08:50"
+          end_time: "09:35"
+          room: "Lab 1"
+          teacher: "Dr. Brown"
+          color: "#9C27B0"
+          icon: "mdi:flask"
+        - subject: "French"
+          start_time: "09:45"
+          end_time: "10:30"
+          room: "206"
+          teacher: "Mme. Dubois"
+          color: "#3F51B5"
+          icon: "mdi:translate"
+        - subject: "Free Period"
+          start_time: "10:30"
+          end_time: "10:40"
+          notes: "Study hall"
+        - subject: "Social Studies"
+          start_time: "10:40"
+          end_time: "11:25"
+          room: "202"
+          teacher: "Mr. Robinson"
+          color: "#795548"
+          icon: "mdi:school"
+
+      friday:
+        - subject: "Mathematics"
+          start_time: "08:00"
+          end_time: "08:45"
+          room: "101"
+          teacher: "Mr. Smith"
+          color: "#FF5722"
+          icon: "mdi:calculator"
+        - subject: "Chemistry"
+          start_time: "08:50"
+          end_time: "09:35"
+          room: "Lab 2"
+          teacher: "Dr. Wilson"
+          color: "#4CAF50"
+          icon: "mdi:test-tube"
+        - subject: "Drama"
+          start_time: "09:45"
+          end_time: "10:30"
+          room: "Theater"
+          teacher: "Ms. Thompson"
+          color: "#E91E63"
+          icon: "mdi:drama-masks"
+        - subject: "Library"
+          start_time: "10:40"
+          end_time: "11:25"
+          room: "Library"
+          teacher: "Mrs. White"
+          notes: "Free reading time"
+          color: "#607D8B"
+          icon: "mdi:library"
+
+---
+
+# Example 2: Add individual lessons
+service: stundenplan.add_lesson
+data:
+  schedule_id: default
+  weekday: monday
+  lesson:
+    subject: "Extra Study"
+    start_time: "14:00"
+    end_time: "15:00"
+    room: "Study Hall"
+    notes: "Optional homework session"
+
+---
+
+# Example 3: Add vacation periods
+service: stundenplan.add_vacation
+data:
+  start_date: "2025-03-31"
+  end_date: "2025-04-14"
+  label: "Spring Break"
+
+---
+
+service: stundenplan.add_vacation
+data:
+  start_date: "2025-07-01"
+  end_date: "2025-08-31"
+  label: "Summer Vacation"
+
+---
+
+service: stundenplan.add_vacation
+data:
+  start_date: "2025-12-22"
+  end_date: "2026-01-06"
+  label: "Winter Break"
+
+---
+
+# Example 4: Remove a lesson (by index, 0-based)
+service: stundenplan.remove_lesson
+data:
+  schedule_id: default
+  weekday: monday
+  lesson_index: 0
+
+---
+
+# Example 5: Remove a vacation (by index, 0-based)
+service: stundenplan.remove_vacation
+data:
+  vacation_index: 0
+
+---
+
+# Example Automation 1: Announce next lesson 5 minutes before
+automation:
+  - alias: "Next Lesson Reminder"
+    trigger:
+      - platform: time_pattern
+        minutes: "/1"
+    condition:
+      - condition: template
+        value_template: >
+          {% set next_lesson = state_attr('sensor.stundenplan_current', 'next_lesson') %}
+          {% if next_lesson %}
+            {% set start = next_lesson.start_time %}
+            {% set now = now() %}
+            {% set lesson_time = today_at(start) %}
+            {{ (lesson_time - now).total_seconds() <= 300 and (lesson_time - now).total_seconds() > 240 }}
+          {% else %}
+            false
+          {% endif %}
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "Lesson Starting Soon!"
+          message: >
+            {{ state_attr('sensor.stundenplan_current', 'next_lesson').subject }}
+            starts in 5 minutes in room
+            {{ state_attr('sensor.stundenplan_current', 'next_lesson').room }}
+
+---
+
+# Example Automation 2: Good morning schedule summary
+automation:
+  - alias: "Morning Schedule Summary"
+    trigger:
+      - platform: time
+        at: "07:00:00"
+    condition:
+      - condition: state
+        entity_id: binary_sensor.workday_sensor
+        state: "on"
+      - condition: template
+        value_template: "{{ state_attr('sensor.stundenplan_current', 'is_school_day') }}"
+    action:
+      - service: tts.speak
+        target:
+          entity_id: media_player.bedroom_speaker
+        data:
+          message: >
+            Good morning! You have {{ state_attr('sensor.stundenplan_current', 'today_lessons') | length }}
+            lessons today. Your first lesson is
+            {{ state_attr('sensor.stundenplan_current', 'today_lessons')[0].subject }}
+            at {{ state_attr('sensor.stundenplan_current', 'today_lessons')[0].start_time }}.
+
+---
+
+# Example Automation 3: Turn on focus mode during lessons
+automation:
+  - alias: "School Focus Mode"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.stundenplan_is_schooltime
+        to: "on"
+    action:
+      - service: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.focus_mode
+      - service: notify.mobile_app
+        data:
+          title: "Focus Mode"
+          message: "Focus mode enabled for {{ state_attr('sensor.stundenplan_current', 'current_lesson').subject }}"
+
+  - alias: "School Focus Mode Off"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.stundenplan_is_schooltime
+        to: "off"
+    action:
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.focus_mode
