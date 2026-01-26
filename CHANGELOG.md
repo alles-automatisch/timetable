@@ -5,6 +5,16 @@ All notable changes to TimeTable will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.7] - 2026-01-26
+
+### Added
+- Added icon.png and logo.png for HACS integration store display
+- Icons now visible in HACS store listing
+
+### Changed
+- README already in English for HACS compatibility
+- Improved HACS store presentation
+
 ## [1.0.6] - 2026-01-26
 
 ### Fixed

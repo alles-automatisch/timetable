@@ -8,6 +8,6 @@
   "iot_class": "calculated",
   "issue_tracker": "https://github.com/alles-automatisch/timetable/issues",
   "requirements": [],
-  "version": "1.0.6",
+  "version": "1.0.7",
   "icon": "mdi:school"
 }
