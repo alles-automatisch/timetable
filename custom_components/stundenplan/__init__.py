@@ -46,29 +46,46 @@ PLATFORMS = ["sensor", "binary_sensor"]
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Stundenplan from a config entry."""
-    hass.data.setdefault(DOMAIN, {})
+    try:
+        hass.data.setdefault(DOMAIN, {})
 
-    # Initialize storage
-    storage = StundenplanStorage(hass)
-    await storage.async_load()
+        # Initialize storage
+        _LOGGER.debug("Initializing storage for entry %s", entry.entry_id)
+        storage = StundenplanStorage(hass)
+        await storage.async_load()
 
-    # Initialize coordinator
-    coordinator = StundenplanCoordinator(hass, storage)
-    await coordinator.async_config_entry_first_refresh()
+        # Initialize coordinator
+        _LOGGER.debug("Initializing coordinator for entry %s", entry.entry_id)
+        coordinator = StundenplanCoordinator(hass, storage)
+        await coordinator.async_config_entry_first_refresh()
 
-    hass.data[DOMAIN][entry.entry_id] = {
-        "coordinator": coordinator,
-        "storage": storage,
-    }
+        hass.data[DOMAIN][entry.entry_id] = {
+            "coordinator": coordinator,
+            "storage": storage,
+        }
 
-    # Set up platforms
-    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+        # Set up platforms
+        _LOGGER.debug("Setting up platforms for entry %s", entry.entry_id)
+        await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
-    # Register services only once (check if not already registered)
-    if not hass.services.has_service(DOMAIN, SERVICE_SET_SCHEDULE):
-        await async_setup_services(hass)
+        # Register services only once (check if not already registered)
+        if not hass.services.has_service(DOMAIN, SERVICE_SET_SCHEDULE):
+            _LOGGER.debug("Registering services")
+            await async_setup_services(hass)
 
-    return True
+        # Add update listener for options changes
+        entry.async_on_unload(entry.add_update_listener(async_reload_entry))
+
+        _LOGGER.info("Successfully set up TimeTable integration")
+        return True
+    except Exception as err:
+        _LOGGER.exception("Error setting up TimeTable integration: %s", err)
+        raise
+
+
+async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Reload config entry when options change."""
+    await hass.config_entries.async_reload(entry.entry_id)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

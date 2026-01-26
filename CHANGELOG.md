@@ -5,6 +5,19 @@ All notable changes to TimeTable will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.4] - 2026-01-26
+
+### Fixed
+- Fixed 500 Internal Server Error during config flow initialization
+- Config flow now automatically creates entry with default values
+- Removed unnecessary user input step that caused loading errors
+- Simplified imports in config flow to prevent import errors
+
+### Changed
+- Config flow now starts automatically when integration is added
+- No manual user input required for initial setup
+- Configuration can still be changed via Options flow
+
 ## [1.0.1] - 2025-01-25
 
 ### Fixed
