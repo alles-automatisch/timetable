@@ -28,18 +28,25 @@ class StundenplanConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         await self.async_set_unique_id("stundenplan")
         self._abort_if_unique_id_configured()
 
-        # If user_input is None, create entry directly with default values
-        # This allows automatic setup without user interaction
-        if user_input is None:
-            user_input = {
-                "name": "TimeTable",
-                "include_weekends": DEFAULT_INCLUDE_WEEKENDS,
-            }
+        # If user provided input, create the entry
+        if user_input is not None:
+            return self.async_create_entry(
+                title=user_input.get("name", "TimeTable"),
+                data={},
+                options=user_input,
+            )
 
-        return self.async_create_entry(
-            title=user_input.get("name", "TimeTable"),
-            data={},
-            options=user_input,
+        # Show form with default values
+        return self.async_show_form(
+            step_id="user",
+            data_schema=vol.Schema(
+                {
+                    vol.Optional("name", default="TimeTable"): str,
+                    vol.Optional(
+                        "include_weekends", default=DEFAULT_INCLUDE_WEEKENDS
+                    ): bool,
+                }
+            ),
         )
 
     @staticmethod
