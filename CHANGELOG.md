@@ -5,6 +5,128 @@ All notable changes to TimeTable will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2026-01-29
+
+### 🎉 MAJOR RELEASE: User-Friendly Configuration UI
+
+This is a complete redesign focused on user experience - **zero YAML knowledge required!**
+
+### ✨ New Features
+
+**Beautiful Configuration UI:**
+- 📚 **Visual Lesson Management** - Add/edit/delete lessons through intuitive menus
+- 🌴 **Visual Vacation Management** - Easy date range picker for vacations
+- ⚙️ **Settings Panel** - Configure name and weekend inclusion
+- 🎨 **Smart Selectors** - Time pickers, color pickers, icon pickers, date pickers
+- 📱 **Mobile-Friendly** - Works perfectly on phones and tablets
+- 🎯 **Menu-Driven** - Clear navigation with emoji indicators
+- ✅ **Validated Forms** - Can't make configuration errors
+
+**Enhanced User Experience:**
+- Pre-defined colors for common subjects
+- Automatic lesson sorting by time
+- Lesson and vacation counters
+- Visual feedback with emojis (📚 ✏️ 🗑️ 📅)
+- Breadcrumb navigation
+- Mobile-optimized interface
+
+### 🔧 Changed
+
+**Simplified Architecture:**
+- Configuration now stored in config entry (no separate storage file)
+- Removed services (no longer needed - use UI instead)
+- Simplified coordinator (reads from config entry)
+- Cleaner codebase
+
+### ⚠️ BREAKING CHANGES
+
+**Migration Required from v2.0.0:**
+
+**What Changed:**
+- **No more services** - Schedule management is now done through the UI
+- **Storage location changed** - Data now in config entry options
+- **Setup flow improved** - Better initial experience
+
+**How to Migrate:**
+
+1. **Export your v2 data** (optional - if you have data):
+   - Developer Tools → States
+   - Find `sensor.timetable_current`
+   - Copy attributes
+
+2. **Update to v3.0.0**:
+   - HACS → Integrations → TimeTable → Update
+
+3. **Remove and re-add integration**:
+   - Settings → Integrations → TimeTable → Delete
+   - Settings → Integrations → + Add Integration → TimeTable
+
+4. **Configure via UI**:
+   - Settings → Integrations → TimeTable → Configure
+   - Use beautiful menu system to add lessons
+   - No YAML needed!
+
+5. **Dashboard card**:
+   - Card continues to work (no changes needed)
+   - Data appears automatically from UI configuration
+
+### 🎯 Benefits
+
+**For Users:**
+- ✅ No YAML knowledge needed
+- ✅ Visual, intuitive interface
+- ✅ Immediate feedback
+- ✅ Mobile-friendly
+- ✅ Can't make syntax errors
+- ✅ All in one place
+
+**For Integration:**
+- ✅ Simpler architecture
+- ✅ No separate storage file
+- ✅ Config entry is source of truth
+- ✅ Easier to maintain
+- ✅ Better HA integration patterns
+
+### 📝 Removed
+
+- `services.yaml` - No longer needed (use UI)
+- `storage.py` - No longer needed (data in config entry)
+- Service calls (`timetable.*`) - Use configuration UI instead
+
+### 🎨 User Flow
+
+```
+Install → Add Integration → Configure (Visual UI) → Add Card → Done!
+         ↓
+    Settings → Integrations → TimeTable → Configure
+         ↓
+    📚 Manage Lessons → Select Day → Add/Edit/Delete
+    🌴 Manage Vacations → Add/Edit/Delete
+    ⚙️ Settings → Update Name/Weekends
+         ↓
+    Data appears in card automatically!
+```
+
+### 📖 Documentation
+
+- See `USER_FRIENDLY_REDESIGN.md` for complete design documentation
+- Updated `README.md` with UI instructions (no more service examples)
+- New user guide focusing on visual configuration
+
+### 🚀 Upgrade Path
+
+**From v1.x:**
+- Follow v2.0.0 migration first
+- Then follow v3.0.0 migration
+
+**From v2.0.0:**
+- Update via HACS
+- Remove and re-add integration
+- Configure via UI (takes 5 minutes)
+
+**Clean Install:**
+- Just add integration and configure via beautiful UI!
+
 ## [2.0.0] - 2026-01-29
 
 ### ⚠️ BREAKING CHANGES

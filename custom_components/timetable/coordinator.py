@@ -1,24 +1,24 @@
-"""DataUpdateCoordinator for TimeTable."""
+"""DataUpdateCoordinator for TimeTable that reads from config entry."""
 from __future__ import annotations
 
 from datetime import datetime, timedelta
 import logging
 from typing import Any
 
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN, UPDATE_INTERVAL, WEEKDAY_MAP
-from .storage import TimetableStorage
 
 _LOGGER = logging.getLogger(__name__)
 
 
 class TimetableCoordinator(DataUpdateCoordinator):
-    """Class to manage fetching TimeTable data."""
+    """Class to manage fetching TimeTable data from config entry."""
 
-    def __init__(self, hass: HomeAssistant, storage: TimetableStorage) -> None:
+    def __init__(self, hass: HomeAssistant, config_entry: ConfigEntry) -> None:
         """Initialize the coordinator."""
         super().__init__(
             hass,
@@ -26,154 +26,107 @@ class TimetableCoordinator(DataUpdateCoordinator):
             name=DOMAIN,
             update_interval=timedelta(seconds=UPDATE_INTERVAL),
         )
-        self.storage = storage
+        self.config_entry = config_entry
+
+    def _get_schedule_data(self) -> dict[str, Any]:
+        """Get schedule data from config entry options."""
+        return {
+            "lessons": self.config_entry.options.get("lessons", {}),
+            "vacations": self.config_entry.options.get("vacations", []),
+            "include_weekends": self.config_entry.options.get("include_weekends", False),
+        }
+
+    def _get_lessons_for_day(self, weekday: str) -> list[dict[str, Any]]:
+        """Get lessons for a specific weekday."""
+        schedule = self._get_schedule_data()
+        return schedule["lessons"].get(weekday, [])
+
+    def _check_vacation(self, date: datetime) -> tuple[bool, str | None]:
+        """Check if date is in vacation period."""
+        schedule = self._get_schedule_data()
+        date_str = date.date().isoformat()
+
+        for vacation in schedule["vacations"]:
+            start = vacation["start_date"]
+            end = vacation["end_date"]
+
+            if start <= date_str <= end:
+                return True, vacation["label"]
+
+        return False, None
+
+    def _get_current_lesson(
+        self, now: datetime, lessons: list[dict[str, Any]]
+    ) -> dict[str, Any] | None:
+        """Get the current lesson if any."""
+        current_time = now.strftime("%H:%M")
+
+        for lesson in lessons:
+            if lesson["start_time"] <= current_time < lesson["end_time"]:
+                return lesson
+
+        return None
+
+    def _get_next_lesson(
+        self, now: datetime, lessons: list[dict[str, Any]]
+    ) -> dict[str, Any] | None:
+        """Get the next upcoming lesson."""
+        current_time = now.strftime("%H:%M")
+
+        for lesson in lessons:
+            if lesson["start_time"] > current_time:
+                return lesson
+
+        return None
+
+    def _get_remaining_lessons(
+        self, now: datetime, lessons: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
+        """Get remaining lessons for today."""
+        current_time = now.strftime("%H:%M")
+
+        return [lesson for lesson in lessons if lesson["end_time"] > current_time]
 
     async def _async_update_data(self) -> dict[str, Any]:
-        """Fetch data from storage and compute current state."""
+        """Fetch data from config entry."""
         now = dt_util.now()
-        schedule = self.storage.get_schedule()
-
-        if schedule is None:
-            return self._get_empty_state()
-
-        # Get today's weekday
-        weekday_index = now.weekday()
-        weekday_name = WEEKDAY_MAP.get(weekday_index, "monday")
+        weekday = WEEKDAY_MAP[now.weekday()]
 
         # Check if in vacation
-        vacation_info = self._get_current_vacation(now)
-        is_vacation = vacation_info is not None
+        is_vacation, vacation_name = self._check_vacation(now)
 
         # Get today's lessons
-        today_lessons = schedule.get("lessons", {}).get(weekday_name, [])
+        today_lessons = self._get_lessons_for_day(weekday)
 
-        # Find current and next lesson
-        current_lesson = None
-        next_lesson = None
-        remaining_count = 0
+        # Get current and next lessons
+        current_lesson = self._get_current_lesson(now, today_lessons)
+        next_lesson = self._get_next_lesson(now, today_lessons)
 
-        current_time = now.time()
+        # Get remaining lessons
+        remaining_lessons = self._get_remaining_lessons(now, today_lessons)
 
-        for lesson in today_lessons:
-            start_time = self._parse_time(lesson.get("start_time", "00:00"))
-            end_time = self._parse_time(lesson.get("end_time", "23:59"))
+        # Determine current state
+        if is_vacation:
+            state = f"Vacation: {vacation_name}"
+        elif current_lesson:
+            state = current_lesson["subject"]
+        elif next_lesson:
+            state = "Free Period"
+        elif today_lessons:
+            state = "After School"
+        else:
+            state = "No School Today"
 
-            if start_time <= current_time < end_time:
-                current_lesson = lesson
-            elif current_time < start_time:
-                if next_lesson is None:
-                    next_lesson = lesson
-                remaining_count += 1
-
-        # Determine state
-        state = self._determine_state(
-            is_vacation,
-            vacation_info,
-            current_lesson,
-            weekday_index,
-            schedule.get("include_weekends", False),
-        )
-
-        # Check if it's a school day
-        is_school_day = self._is_school_day(
-            weekday_index,
-            schedule.get("include_weekends", False),
-            is_vacation,
-        )
-
+        # Build result data
         return {
             "state": state,
             "current_lesson": current_lesson,
             "next_lesson": next_lesson,
             "today_lessons": today_lessons,
-            "remaining_today_count": remaining_count,
+            "remaining_today_count": len(remaining_lessons),
             "is_vacation": is_vacation,
-            "vacation_name": vacation_info.get("label") if vacation_info else None,
-            "is_school_day": is_school_day,
-            "schedule": schedule,
+            "vacation_name": vacation_name,
+            "is_school_day": len(today_lessons) > 0,
+            "is_schooltime": current_lesson is not None,
+            "weekday": weekday,
         }
-
-    def _get_empty_state(self) -> dict[str, Any]:
-        """Return empty state when no schedule exists."""
-        return {
-            "state": "No Schedule",
-            "current_lesson": None,
-            "next_lesson": None,
-            "today_lessons": [],
-            "remaining_today_count": 0,
-            "is_vacation": False,
-            "vacation_name": None,
-            "is_school_day": False,
-            "schedule": None,
-        }
-
-    def _get_current_vacation(self, now: datetime) -> dict[str, Any] | None:
-        """Check if current date is within a vacation period."""
-        current_date = now.date()
-        vacations = self.storage.get_vacations()
-
-        for vacation in vacations:
-            try:
-                start_date = datetime.strptime(
-                    vacation.get("start_date", ""), "%Y-%m-%d"
-                ).date()
-                end_date = datetime.strptime(
-                    vacation.get("end_date", ""), "%Y-%m-%d"
-                ).date()
-
-                if start_date <= current_date <= end_date:
-                    return vacation
-            except ValueError:
-                _LOGGER.warning("Invalid vacation date format: %s", vacation)
-                continue
-
-        return None
-
-    def _parse_time(self, time_str: str) -> datetime.time:
-        """Parse time string to time object."""
-        try:
-            return datetime.strptime(time_str, "%H:%M").time()
-        except ValueError:
-            _LOGGER.warning("Invalid time format: %s", time_str)
-            return datetime.strptime("00:00", "%H:%M").time()
-
-    def _determine_state(
-        self,
-        is_vacation: bool,
-        vacation_info: dict[str, Any] | None,
-        current_lesson: dict[str, Any] | None,
-        weekday_index: int,
-        include_weekends: bool,
-    ) -> str:
-        """Determine the current state string."""
-        if is_vacation and vacation_info:
-            return f"Ferien: {vacation_info.get('label', 'Vacation')}"
-
-        if not self._is_school_day(weekday_index, include_weekends, is_vacation):
-            return "Schulfrei / Wochenende"
-
-        if current_lesson:
-            subject = current_lesson.get("subject", "Unknown")
-            start = current_lesson.get("start_time", "")
-            end = current_lesson.get("end_time", "")
-            return f"{subject} ({start}–{end})"
-
-        # Check if between lessons (free period)
-        # For now, return "Freistunde" if there are more lessons today
-        # This could be enhanced to detect actual gaps
-        return "Freistunde"
-
-    def _is_school_day(
-        self,
-        weekday_index: int,
-        include_weekends: bool,
-        is_vacation: bool,
-    ) -> bool:
-        """Determine if today is a school day."""
-        if is_vacation:
-            return False
-
-        if weekday_index >= 5 and not include_weekends:  # Saturday (5) or Sunday (6)
-            return False
-
-        return True
