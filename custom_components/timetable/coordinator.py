@@ -1,4 +1,4 @@
-"""DataUpdateCoordinator for Stundenplan."""
+"""DataUpdateCoordinator for TimeTable."""
 from __future__ import annotations
 
 from datetime import datetime, timedelta
@@ -10,15 +10,15 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN, UPDATE_INTERVAL, WEEKDAY_MAP
-from .storage import StundenplanStorage
+from .storage import TimetableStorage
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class StundenplanCoordinator(DataUpdateCoordinator):
-    """Class to manage fetching Stundenplan data."""
+class TimetableCoordinator(DataUpdateCoordinator):
+    """Class to manage fetching TimeTable data."""
 
-    def __init__(self, hass: HomeAssistant, storage: StundenplanStorage) -> None:
+    def __init__(self, hass: HomeAssistant, storage: TimetableStorage) -> None:
         """Initialize the coordinator."""
         super().__init__(
             hass,

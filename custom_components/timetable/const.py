@@ -1,9 +1,9 @@
-"""Constants for the Stundenplan integration."""
+"""Constants for the TimeTable integration."""
 from typing import Final
 
-DOMAIN: Final = "stundenplan"
+DOMAIN: Final = "timetable"
 STORAGE_VERSION: Final = 1
-STORAGE_KEY: Final = "stundenplan.storage"
+STORAGE_KEY: Final = "timetable.storage"
 
 # Update interval (in seconds)
 UPDATE_INTERVAL: Final = 60

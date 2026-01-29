@@ -1,4 +1,4 @@
-"""Binary sensor platform for Stundenplan."""
+"""Binary sensor platform for TimeTable."""
 from __future__ import annotations
 
 from homeassistant.components.binary_sensor import BinarySensorEntity
@@ -8,7 +8,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN
-from .coordinator import StundenplanCoordinator
+from .coordinator import TimetableCoordinator
 
 
 async def async_setup_entry(
@@ -16,19 +16,19 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up Stundenplan binary sensor based on a config entry."""
-    coordinator: StundenplanCoordinator = hass.data[DOMAIN][entry.entry_id][
+    """Set up Timetable binary sensor based on a config entry."""
+    coordinator: TimetableCoordinator = hass.data[DOMAIN][entry.entry_id][
         "coordinator"
     ]
 
-    async_add_entities([StundenplanIsSchooltimeSensor(coordinator, entry)])
+    async_add_entities([TimetableIsSchooltimeSensor(coordinator, entry)])
 
 
-class StundenplanIsSchooltimeSensor(CoordinatorEntity, BinarySensorEntity):
+class TimetableIsSchooltimeSensor(CoordinatorEntity, BinarySensorEntity):
     """Binary sensor for whether currently in school time."""
 
     def __init__(
-        self, coordinator: StundenplanCoordinator, entry: ConfigEntry
+        self, coordinator: TimetableCoordinator, entry: ConfigEntry
     ) -> None:
         """Initialize the binary sensor."""
         super().__init__(coordinator)

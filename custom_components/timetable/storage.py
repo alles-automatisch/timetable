@@ -1,4 +1,4 @@
-"""Storage for Stundenplan integration."""
+"""Storage for TimeTable integration."""
 from __future__ import annotations
 
 import logging
@@ -12,8 +12,8 @@ from .const import STORAGE_KEY, STORAGE_VERSION, WEEKDAYS
 _LOGGER = logging.getLogger(__name__)
 
 
-class StundenplanStorage:
-    """Class to manage Stundenplan storage."""
+class TimetableStorage:
+    """Class to manage TimeTable storage."""
 
     def __init__(self, hass: HomeAssistant) -> None:
         """Initialize the storage."""

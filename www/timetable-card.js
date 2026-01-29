@@ -1,4 +1,4 @@
-class StundenplanCard extends HTMLElement {
+class TimetableCard extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
@@ -35,7 +35,7 @@ class StundenplanCard extends HTMLElement {
 
   static getStubConfig() {
     return {
-      entity: 'sensor.stundenplan_current',
+      entity: 'sensor.timetable_current',
       view: 'today',
       show_weekends: false,
       show_room: true,
@@ -540,7 +540,7 @@ class StundenplanCard extends HTMLElement {
 }
 
 // Card editor
-class StundenplanCardEditor extends HTMLElement {
+class TimetableCardEditor extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
@@ -570,7 +570,7 @@ class StundenplanCardEditor extends HTMLElement {
     }
 
     const entities = Object.keys(this._hass.states).filter(
-      (eid) => eid.startsWith('sensor.stundenplan_')
+      (eid) => eid.startsWith('sensor.timetable_')
     );
 
     this.shadowRoot.innerHTML = `
@@ -692,12 +692,12 @@ class StundenplanCardEditor extends HTMLElement {
   }
 }
 
-customElements.define('stundenplan-card', StundenplanCard);
-customElements.define('stundenplan-card-editor', StundenplanCardEditor);
+customElements.define('timetable-card', TimetableCard);
+customElements.define('timetable-card-editor', TimetableCardEditor);
 
 window.customCards = window.customCards || [];
 window.customCards.push({
-  type: 'stundenplan-card',
+  type: 'timetable-card',
   name: 'TimeTable Card',
   description: 'A beautiful card to display school timetables with lessons, free periods, and vacation tracking',
   preview: true,

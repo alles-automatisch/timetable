@@ -5,6 +5,38 @@ All notable changes to TimeTable will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-01-29
+
+### ⚠️ BREAKING CHANGES
+
+This is a major release that renames the integration domain from `stundenplan` to `timetable` for better international compatibility.
+
+**Migration Required:**
+- Entity IDs changed: `sensor.stundenplan_*` → `sensor.timetable_*`
+- Service names changed: `stundenplan.*` → `timetable.*`
+- Card type changed: `custom:stundenplan-card` → `custom:timetable-card`
+- Card file renamed: `stundenplan-card.js` → `timetable-card.js`
+- Directory renamed: `custom_components/stundenplan/` → `custom_components/timetable/`
+
+**How to Migrate:**
+1. Remove old integration from HA
+2. Delete `custom_components/stundenplan/` directory
+3. Delete `www/stundenplan-card.js` file
+4. Install v2.0.0 via HACS or manually
+5. Add integration again (new domain: `timetable`)
+6. Update all dashboard cards from `stundenplan-card` to `timetable-card`
+7. Update automations to use new entity IDs and service names
+
+### Changed
+- **Domain**: Renamed from `stundenplan` to `timetable`
+- **Entity IDs**: All entities now use `timetable` prefix
+- **Services**: All services now use `timetable` domain
+- **Card**: Renamed to `timetable-card`
+- **German translations**: "Stundenplan" remains in German translation files only
+
+### Rationale
+This change provides better international naming and makes the integration more accessible to non-German speakers while maintaining proper German translations.
+
 ## [1.0.8] - 2026-01-29
 
 ### Fixed

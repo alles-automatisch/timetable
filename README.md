@@ -43,8 +43,8 @@ A comprehensive Home Assistant integration for managing and displaying school ti
 ### Manual Installation
 
 1. Download the latest release from [GitHub releases](https://github.com/alles-automatisch/timetable/releases)
-2. Copy the `custom_components/stundenplan` folder to your `config/custom_components/` directory
-3. Copy `www/stundenplan-card.js` to your `config/www/` directory
+2. Copy the `custom_components/timetable` folder to your `config/custom_components/` directory
+3. Copy `www/timetable-card.js` to your `config/www/` directory
 4. Restart Home Assistant
 
 ## 🚀 Setup
@@ -72,15 +72,15 @@ Add the card resource first:
 
 ```yaml
 resources:
-  - url: /local/stundenplan-card.js
+  - url: /local/timetable-card.js
     type: module
 ```
 
 Then add the card to your dashboard:
 
 ```yaml
-type: custom:stundenplan-card
-entity: sensor.stundenplan_current
+type: custom:timetable-card
+entity: sensor.timetable_current
 view: today
 show_weekends: false
 show_room: true
@@ -99,7 +99,7 @@ title: My Timetable
 Add lessons to your schedule using the developer tools or automations:
 
 ```yaml
-service: stundenplan.add_lesson
+service: timetable.add_lesson
 data:
   schedule_id: default
   weekday: monday
@@ -117,7 +117,7 @@ data:
 #### Set a Complete Schedule
 
 ```yaml
-service: stundenplan.set_schedule
+service: timetable.set_schedule
 data:
   schedule_id: default
   schedule_data:
@@ -146,7 +146,7 @@ data:
 #### Add Vacation Periods
 
 ```yaml
-service: stundenplan.add_vacation
+service: timetable.add_vacation
 data:
   start_date: "2025-07-01"
   end_date: "2025-08-31"
@@ -156,7 +156,7 @@ data:
 #### Remove a Lesson
 
 ```yaml
-service: stundenplan.remove_lesson
+service: timetable.remove_lesson
 data:
   schedule_id: default
   weekday: monday
@@ -167,11 +167,11 @@ data:
 
 | Service | Description |
 |---------|-------------|
-| `stundenplan.set_schedule` | Set or update a complete schedule |
-| `stundenplan.add_lesson` | Add a lesson to a specific weekday |
-| `stundenplan.remove_lesson` | Remove a lesson from a weekday |
-| `stundenplan.add_vacation` | Add a vacation period |
-| `stundenplan.remove_vacation` | Remove a vacation period |
+| `timetable.set_schedule` | Set or update a complete schedule |
+| `timetable.add_lesson` | Add a lesson to a specific weekday |
+| `timetable.remove_lesson` | Remove a lesson from a weekday |
+| `timetable.add_vacation` | Add a vacation period |
+| `timetable.remove_vacation` | Remove a vacation period |
 
 ### Entities
 
@@ -179,13 +179,13 @@ After installation, you'll have access to:
 
 | Entity | Description |
 |--------|-------------|
-| `sensor.stundenplan_current` | Current lesson or state |
-| `sensor.stundenplan_next_lesson` | Next upcoming lesson |
-| `binary_sensor.stundenplan_is_schooltime` | On when currently in a lesson |
+| `sensor.timetable_current` | Current lesson or state |
+| `sensor.timetable_next_lesson` | Next upcoming lesson |
+| `binary_sensor.timetable_is_schooltime` | On when currently in a lesson |
 
 ### Entity Attributes
 
-The `sensor.stundenplan_current` entity provides rich attributes:
+The `sensor.timetable_current` entity provides rich attributes:
 
 ```yaml
 current_lesson:
@@ -211,8 +211,8 @@ is_school_day: true
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `entity` | string | **Required** | Entity ID (e.g., `sensor.stundenplan_current`) |
-| `title` | string | `Stundenplan` | Card title |
+| `entity` | string | **Required** | Entity ID (e.g., `sensor.timetable_current`) |
+| `title` | string | `TimeTable` | Card title |
 | `view` | string | `today` | Default view (`today` or `week`) |
 | `show_weekends` | boolean | `false` | Include weekends in week view |
 | `show_room` | boolean | `true` | Display room information |
@@ -231,16 +231,16 @@ automation:
   - alias: "Announce Next Lesson"
     trigger:
       - platform: state
-        entity_id: sensor.stundenplan_next_lesson
+        entity_id: sensor.timetable_next_lesson
     condition:
       - condition: state
-        entity_id: binary_sensor.stundenplan_is_schooltime
+        entity_id: binary_sensor.timetable_is_schooltime
         state: "off"
     action:
       - service: tts.speak
         data:
           entity_id: media_player.living_room
-          message: "Your next lesson is {{ state_attr('sensor.stundenplan_next_lesson', 'subject') }} in 5 minutes"
+          message: "Your next lesson is {{ state_attr('sensor.timetable_next_lesson', 'subject') }} in 5 minutes"
 ```
 
 ### Notification Before Lessons
@@ -254,7 +254,7 @@ automation:
     condition:
       - condition: template
         value_template: >
-          {% set next_lesson = state_attr('sensor.stundenplan_current', 'next_lesson') %}
+          {% set next_lesson = state_attr('sensor.timetable_current', 'next_lesson') %}
           {% if next_lesson %}
             {% set start_time = next_lesson.start_time %}
             {% set now_time = now().strftime('%H:%M') %}
@@ -266,7 +266,7 @@ automation:
       - service: notify.mobile_app
         data:
           title: "Lesson Starting Soon"
-          message: "{{ state_attr('sensor.stundenplan_current', 'next_lesson').subject }} starts in 5 minutes!"
+          message: "{{ state_attr('sensor.timetable_current', 'next_lesson').subject }} starts in 5 minutes!"
 ```
 
 ## 🌍 Translations
@@ -287,12 +287,12 @@ Want to add your language? Contributions are welcome!
 
 1. Make sure the card JavaScript is loaded:
    - Check browser console for errors
-   - Verify `/local/stundenplan-card.js` is accessible
+   - Verify `/local/timetable-card.js` is accessible
    - Clear browser cache
 
 2. Verify entity exists:
    - Check Developer Tools → States
-   - Look for `sensor.stundenplan_current`
+   - Look for `sensor.timetable_current`
 
 ### Services Not Working
 

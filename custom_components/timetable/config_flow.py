@@ -1,4 +1,4 @@
-"""Config flow for Stundenplan integration."""
+"""Config flow for TimeTable integration."""
 from __future__ import annotations
 
 import logging
@@ -15,8 +15,8 @@ from .const import DEFAULT_INCLUDE_WEEKENDS, DEFAULT_SCHEDULE_NAME, DOMAIN
 _LOGGER = logging.getLogger(__name__)
 
 
-class StundenplanConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for Stundenplan."""
+class TimetableConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+    """Handle a config flow for Timetable."""
 
     VERSION = 1
 
@@ -53,13 +53,13 @@ class StundenplanConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     @callback
     def async_get_options_flow(
         config_entry: config_entries.ConfigEntry,
-    ) -> StundenplanOptionsFlow:
+    ) -> TimetableOptionsFlow:
         """Get the options flow for this handler."""
-        return StundenplanOptionsFlow(config_entry)
+        return TimetableOptionsFlow(config_entry)
 
 
-class StundenplanOptionsFlow(config_entries.OptionsFlow):
-    """Handle options flow for Stundenplan."""
+class TimetableOptionsFlow(config_entries.OptionsFlow):
+    """Handle options flow for Timetable."""
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         """Initialize options flow."""

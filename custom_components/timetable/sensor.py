@@ -1,4 +1,4 @@
-"""Sensor platform for Stundenplan."""
+"""Sensor platform for TimeTable."""
 from __future__ import annotations
 
 from typing import Any
@@ -19,7 +19,7 @@ from .const import (
     ATTR_VACATION_NAME,
     DOMAIN,
 )
-from .coordinator import StundenplanCoordinator
+from .coordinator import TimetableCoordinator
 
 
 async def async_setup_entry(
@@ -27,24 +27,24 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up Stundenplan sensor based on a config entry."""
-    coordinator: StundenplanCoordinator = hass.data[DOMAIN][entry.entry_id][
+    """Set up Timetable sensor based on a config entry."""
+    coordinator: TimetableCoordinator = hass.data[DOMAIN][entry.entry_id][
         "coordinator"
     ]
 
     async_add_entities(
         [
-            StundenplanCurrentSensor(coordinator, entry),
-            StundenplanNextSensor(coordinator, entry),
+            TimetableCurrentSensor(coordinator, entry),
+            TimetableNextSensor(coordinator, entry),
         ]
     )
 
 
-class StundenplanCurrentSensor(CoordinatorEntity, SensorEntity):
+class TimetableCurrentSensor(CoordinatorEntity, SensorEntity):
     """Sensor for current lesson/state."""
 
     def __init__(
-        self, coordinator: StundenplanCoordinator, entry: ConfigEntry
+        self, coordinator: TimetableCoordinator, entry: ConfigEntry
     ) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator)
@@ -73,11 +73,11 @@ class StundenplanCurrentSensor(CoordinatorEntity, SensorEntity):
         }
 
 
-class StundenplanNextSensor(CoordinatorEntity, SensorEntity):
+class TimetableNextSensor(CoordinatorEntity, SensorEntity):
     """Sensor for next lesson."""
 
     def __init__(
-        self, coordinator: StundenplanCoordinator, entry: ConfigEntry
+        self, coordinator: TimetableCoordinator, entry: ConfigEntry
     ) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator)

@@ -1,4 +1,4 @@
-"""The Stundenplan integration."""
+"""The TimeTable integration."""
 from __future__ import annotations
 
 import logging
@@ -36,8 +36,8 @@ from .const import (
     SERVICE_SET_SCHEDULE,
     WEEKDAYS,
 )
-from .coordinator import StundenplanCoordinator
-from .storage import StundenplanStorage
+from .coordinator import TimetableCoordinator
+from .storage import TimetableStorage
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -51,18 +51,18 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up Stundenplan from a config entry."""
+    """Set up TimeTable from a config entry."""
     try:
         hass.data.setdefault(DOMAIN, {})
 
         # Initialize storage
         _LOGGER.debug("Initializing storage for entry %s", entry.entry_id)
-        storage = StundenplanStorage(hass)
+        storage = TimetableStorage(hass)
         await storage.async_load()
 
         # Initialize coordinator
         _LOGGER.debug("Initializing coordinator for entry %s", entry.entry_id)
-        coordinator = StundenplanCoordinator(hass, storage)
+        coordinator = TimetableCoordinator(hass, storage)
         await coordinator.async_config_entry_first_refresh()
 
         hass.data[DOMAIN][entry.entry_id] = {
@@ -105,7 +105,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 async def async_setup_services(hass: HomeAssistant) -> None:
-    """Set up services for Stundenplan."""
+    """Set up services for TimeTable."""
 
     async def handle_set_schedule(call: ServiceCall) -> None:
         """Handle the set_schedule service."""
