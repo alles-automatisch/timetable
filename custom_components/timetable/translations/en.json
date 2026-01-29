@@ -3,10 +3,10 @@
     "step": {
       "user": {
         "title": "Set up TimeTable",
-        "description": "Configure your school schedule tracker",
+        "description": "Configure your school timetable tracker.",
         "data": {
-          "name": "Name",
-          "include_weekends": "Include weekends in schedule"
+          "name": "Timetable Name",
+          "include_weekends": "Include weekends"
         }
       }
     },
@@ -17,13 +17,80 @@
   "options": {
     "step": {
       "init": {
-        "title": "TimeTable Options",
-        "description": "Configure schedule options",
+        "title": "TimeTable Configuration",
+        "description": "{overview}",
         "data": {
-          "name": "Name",
-          "include_weekends": "Include weekends in schedule"
+          "action": "Choose an action"
+        }
+      },
+      "manage_lessons": {
+        "title": "Manage Lessons",
+        "description": "Select a day to view and edit lessons.",
+        "data": {
+          "day": "Select Day"
+        }
+      },
+      "day_lessons": {
+        "title": "Lessons for {day}",
+        "description": "Add new lessons or edit existing ones.",
+        "data": {
+          "action": "Choose an action"
+        }
+      },
+      "add_lesson": {
+        "title": "Add Lesson",
+        "description": "Add a new lesson to your timetable.",
+        "data": {
+          "subject": "Subject",
+          "start_time": "Start Time (HH:MM)",
+          "end_time": "End Time (HH:MM)",
+          "room": "Room",
+          "teacher": "Teacher",
+          "notes": "Notes",
+          "color": "Color (hex code)"
+        }
+      },
+      "edit_lesson": {
+        "title": "Edit Lesson",
+        "description": "Update lesson details or delete it.",
+        "data": {
+          "subject": "Subject",
+          "start_time": "Start Time (HH:MM)",
+          "end_time": "End Time (HH:MM)",
+          "room": "Room",
+          "teacher": "Teacher",
+          "notes": "Notes",
+          "color": "Color (hex code)",
+          "delete": "Delete this lesson"
+        }
+      },
+      "manage_vacations": {
+        "title": "Manage Vacations",
+        "description": "Add or remove vacation periods.",
+        "data": {
+          "action": "Choose an action"
+        }
+      },
+      "add_vacation": {
+        "title": "Add Vacation",
+        "description": "Add a vacation period (no lessons during this time).",
+        "data": {
+          "label": "Vacation Name",
+          "start_date": "Start Date (YYYY-MM-DD)",
+          "end_date": "End Date (YYYY-MM-DD)"
+        }
+      },
+      "settings": {
+        "title": "Settings",
+        "description": "Configure general timetable settings.",
+        "data": {
+          "name": "Timetable Name",
+          "include_weekends": "Include weekends"
         }
       }
+    },
+    "error": {
+      "end_before_start": "End time/date must be after start time/date"
     }
   },
   "entity": {
@@ -39,28 +106,6 @@
       "is_schooltime": {
         "name": "Is School Time"
       }
-    }
-  },
-  "services": {
-    "set_schedule": {
-      "name": "Set Schedule",
-      "description": "Set or update a complete schedule"
-    },
-    "add_lesson": {
-      "name": "Add Lesson",
-      "description": "Add a lesson to a specific weekday"
-    },
-    "remove_lesson": {
-      "name": "Remove Lesson",
-      "description": "Remove a lesson from a specific weekday"
-    },
-    "add_vacation": {
-      "name": "Add Vacation",
-      "description": "Add a vacation period"
-    },
-    "remove_vacation": {
-      "name": "Remove Vacation",
-      "description": "Remove a vacation period"
     }
   }
 }

@@ -3,10 +3,10 @@
     "step": {
       "user": {
         "title": "Stundenplan einrichten",
-        "description": "Konfigurieren Sie Ihren Schulstundenplan",
+        "description": "Konfigurieren Sie Ihren Schulstundenplan.",
         "data": {
-          "name": "Name",
-          "include_weekends": "Wochenenden im Stundenplan einbeziehen"
+          "name": "Name des Stundenplans",
+          "include_weekends": "Wochenenden einbeziehen"
         }
       }
     },
@@ -17,13 +17,80 @@
   "options": {
     "step": {
       "init": {
-        "title": "Stundenplan Optionen",
-        "description": "Stundenplan-Einstellungen konfigurieren",
+        "title": "Stundenplan Konfiguration",
+        "description": "{overview}",
         "data": {
-          "name": "Name",
-          "include_weekends": "Wochenenden im Stundenplan einbeziehen"
+          "action": "Wählen Sie eine Aktion"
+        }
+      },
+      "manage_lessons": {
+        "title": "Stunden verwalten",
+        "description": "Wählen Sie einen Tag, um Stunden anzuzeigen und zu bearbeiten.",
+        "data": {
+          "day": "Tag auswählen"
+        }
+      },
+      "day_lessons": {
+        "title": "Stunden für {day}",
+        "description": "Fügen Sie neue Stunden hinzu oder bearbeiten Sie vorhandene.",
+        "data": {
+          "action": "Wählen Sie eine Aktion"
+        }
+      },
+      "add_lesson": {
+        "title": "Stunde hinzufügen",
+        "description": "Fügen Sie eine neue Stunde zu Ihrem Stundenplan hinzu.",
+        "data": {
+          "subject": "Fach",
+          "start_time": "Startzeit (HH:MM)",
+          "end_time": "Endzeit (HH:MM)",
+          "room": "Raum",
+          "teacher": "Lehrer",
+          "notes": "Notizen",
+          "color": "Farbe (hex code)"
+        }
+      },
+      "edit_lesson": {
+        "title": "Stunde bearbeiten",
+        "description": "Aktualisieren Sie die Stundendetails oder löschen Sie diese.",
+        "data": {
+          "subject": "Fach",
+          "start_time": "Startzeit (HH:MM)",
+          "end_time": "Endzeit (HH:MM)",
+          "room": "Raum",
+          "teacher": "Lehrer",
+          "notes": "Notizen",
+          "color": "Farbe (hex code)",
+          "delete": "Diese Stunde löschen"
+        }
+      },
+      "manage_vacations": {
+        "title": "Ferien verwalten",
+        "description": "Ferienzeiträume hinzufügen oder entfernen.",
+        "data": {
+          "action": "Wählen Sie eine Aktion"
+        }
+      },
+      "add_vacation": {
+        "title": "Ferien hinzufügen",
+        "description": "Fügen Sie einen Ferienzeitraum hinzu (keine Stunden während dieser Zeit).",
+        "data": {
+          "label": "Name der Ferien",
+          "start_date": "Startdatum (YYYY-MM-DD)",
+          "end_date": "Enddatum (YYYY-MM-DD)"
+        }
+      },
+      "settings": {
+        "title": "Einstellungen",
+        "description": "Allgemeine Stundenplan-Einstellungen konfigurieren.",
+        "data": {
+          "name": "Name des Stundenplans",
+          "include_weekends": "Wochenenden einbeziehen"
         }
       }
+    },
+    "error": {
+      "end_before_start": "Endzeit/-datum muss nach Startzeit/-datum liegen"
     }
   },
   "entity": {
@@ -39,28 +106,6 @@
       "is_schooltime": {
         "name": "Schulzeit"
       }
-    }
-  },
-  "services": {
-    "set_schedule": {
-      "name": "Stundenplan setzen",
-      "description": "Einen vollständigen Stundenplan setzen oder aktualisieren"
-    },
-    "add_lesson": {
-      "name": "Stunde hinzufügen",
-      "description": "Eine Stunde zu einem bestimmten Wochentag hinzufügen"
-    },
-    "remove_lesson": {
-      "name": "Stunde entfernen",
-      "description": "Eine Stunde von einem bestimmten Wochentag entfernen"
-    },
-    "add_vacation": {
-      "name": "Ferien hinzufügen",
-      "description": "Einen Ferienzeitraum hinzufügen"
-    },
-    "remove_vacation": {
-      "name": "Ferien entfernen",
-      "description": "Einen Ferienzeitraum entfernen"
     }
   }
 }
