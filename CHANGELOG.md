@@ -5,6 +5,45 @@ All notable changes to TimeTable will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.1] - 2026-01-29
+
+### 🔧 Fixed
+
+**Critical Fix: Configuration UI Now Works!**
+
+- Fixed config flow menu handling to properly work with Home Assistant's API
+- Menu options now correctly route to their step methods
+- Simplified menu structure for better reliability
+- Removed complex action-based routing that was causing issues
+
+### Changed
+
+- Streamlined options flow with direct step methods for each menu option
+- Each day now has its own step method for better HA compatibility
+- Improved menu navigation flow
+
+### Technical Details
+
+**What was broken in v3.0.0:**
+- Menu selections weren't being handled correctly
+- `user_input["action"]` pattern doesn't work with `async_show_menu`
+- Home Assistant expects step methods to match menu option names
+
+**What's fixed in v3.0.1:**
+- Menu options like "lessons" directly call `async_step_lessons()`
+- Each weekday has its own step method (monday → `async_step_monday()`)
+- Proper Home Assistant config flow patterns followed
+
+### Migration from v3.0.0
+
+If you installed v3.0.0:
+1. Remove integration completely
+2. Clear cache: `rm -rf /config/custom_components/timetable/__pycache__/`
+3. Update via HACS or reinstall
+4. Restart Home Assistant
+5. Add integration again
+6. **Configuration UI will now work!**
+
 ## [3.0.0] - 2026-01-29
 
 ### 🎉 MAJOR RELEASE: User-Friendly Configuration UI

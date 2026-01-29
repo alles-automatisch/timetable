@@ -13,7 +13,6 @@ from homeassistant.helpers import selector
 
 from .const import (
     DEFAULT_INCLUDE_WEEKENDS,
-    DEFAULT_SCHEDULE_NAME,
     DOMAIN,
     WEEKDAYS,
 )
@@ -34,6 +33,16 @@ SUBJECT_COLORS = {
     "Art": "#F44336",
     "Music": "#3F51B5",
     "Computer Science": "#607D8B",
+}
+
+DAY_NAMES = {
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday",
+    "sunday": "Sunday",
 }
 
 
@@ -58,8 +67,8 @@ class TimetableConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 options={
                     "name": user_input.get("name", "TimeTable"),
                     "include_weekends": user_input.get("include_weekends", False),
-                    "lessons": {},  # Will be populated through options flow
-                    "vacations": [],  # Will be populated through options flow
+                    "lessons": {},
+                    "vacations": [],
                 },
             )
 
@@ -72,9 +81,6 @@ class TimetableConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     vol.Optional("include_weekends", default=False): bool,
                 }
             ),
-            description_placeholders={
-                "description": "Welcome! Let's set up your school timetable. You can add lessons later through the configuration panel."
-            },
         )
 
     @staticmethod
@@ -92,116 +98,82 @@ class TimetableOptionsFlow(config_entries.OptionsFlow):
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         """Initialize options flow."""
         self.config_entry = config_entry
-        self._current_data = dict(config_entry.options)
         self._editing_day = None
         self._editing_lesson_index = None
-        self._editing_vacation_index = None
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
         """Main menu for configuration."""
-        if user_input is not None:
-            if user_input["action"] == "manage_lessons":
-                return await self.async_step_select_day()
-            elif user_input["action"] == "manage_vacations":
-                return await self.async_step_vacation_list()
-            elif user_input["action"] == "settings":
-                return await self.async_step_settings()
-
-        # Get lesson count for display
-        lessons = self._current_data.get("lessons", {})
+        lessons = self.config_entry.options.get("lessons", {})
         total_lessons = sum(len(day_lessons) for day_lessons in lessons.values())
-        vacation_count = len(self._current_data.get("vacations", []))
+        vacation_count = len(self.config_entry.options.get("vacations", []))
 
         return self.async_show_menu(
             step_id="init",
-            menu_options={
-                "manage_lessons": f"📚 Manage Lessons ({total_lessons} lessons)",
-                "manage_vacations": f"🌴 Manage Vacations ({vacation_count} periods)",
-                "settings": "⚙️ Settings",
-            },
-        )
-
-    async def async_step_select_day(
-        self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
-        """Select which day to manage."""
-        if user_input is not None:
-            if user_input["action"] == "back":
-                return await self.async_step_init()
-
-            self._editing_day = user_input["day"]
-            return await self.async_step_day_lessons()
-
-        # Get lesson counts per day
-        lessons = self._current_data.get("lessons", {})
-        day_options = {}
-
-        days_to_show = WEEKDAYS if self._current_data.get("include_weekends", False) else WEEKDAYS[:5]
-
-        day_names = {
-            "monday": "Monday",
-            "tuesday": "Tuesday",
-            "wednesday": "Wednesday",
-            "thursday": "Thursday",
-            "friday": "Friday",
-            "saturday": "Saturday",
-            "sunday": "Sunday",
-        }
-
-        for day in days_to_show:
-            count = len(lessons.get(day, []))
-            emoji = "📅" if count > 0 else "📄"
-            day_options[day] = f"{emoji} {day_names[day]} ({count} lessons)"
-
-        day_options["back"] = "⬅️ Back to Main Menu"
-
-        return self.async_show_menu(
-            step_id="select_day",
-            menu_options=day_options,
-        )
-
-    async def async_step_day_lessons(
-        self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
-        """Show and manage lessons for a specific day."""
-        if user_input is not None:
-            if user_input["action"] == "add":
-                return await self.async_step_add_lesson()
-            elif user_input["action"] == "back":
-                return await self.async_step_select_day()
-            elif user_input["action"].startswith("edit_"):
-                self._editing_lesson_index = int(user_input["action"].split("_")[1])
-                return await self.async_step_edit_lesson()
-            elif user_input["action"].startswith("delete_"):
-                index = int(user_input["action"].split("_")[1])
-                return await self.async_step_delete_lesson(index)
-
-        # Build menu with current lessons
-        lessons = self._current_data.get("lessons", {}).get(self._editing_day, [])
-
-        menu_options = {}
-
-        for i, lesson in enumerate(lessons):
-            menu_options[f"edit_{i}"] = (
-                f"✏️ {lesson.get('start_time')} - {lesson.get('subject')} "
-                f"({lesson.get('room', 'No room')})"
-            )
-            menu_options[f"delete_{i}"] = f"🗑️ Delete {lesson.get('subject')}"
-
-        menu_options["add"] = "➕ Add New Lesson"
-        menu_options["back"] = "⬅️ Back to Day Selection"
-
-        day_name = self._editing_day.title()
-
-        return self.async_show_menu(
-            step_id="day_lessons",
-            menu_options=menu_options,
+            menu_options=["lessons", "vacations", "settings"],
             description_placeholders={
-                "day": day_name,
-                "count": str(len(lessons)),
+                "lesson_count": str(total_lessons),
+                "vacation_count": str(vacation_count),
             },
+        )
+
+    async def async_step_lessons(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Show lesson management options."""
+        return self.async_show_menu(
+            step_id="lessons",
+            menu_options=["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"],
+        )
+
+    async def async_step_monday(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+        """Manage Monday lessons."""
+        self._editing_day = "monday"
+        return await self._show_day_menu()
+
+    async def async_step_tuesday(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+        """Manage Tuesday lessons."""
+        self._editing_day = "tuesday"
+        return await self._show_day_menu()
+
+    async def async_step_wednesday(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+        """Manage Wednesday lessons."""
+        self._editing_day = "wednesday"
+        return await self._show_day_menu()
+
+    async def async_step_thursday(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+        """Manage Thursday lessons."""
+        self._editing_day = "thursday"
+        return await self._show_day_menu()
+
+    async def async_step_friday(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+        """Manage Friday lessons."""
+        self._editing_day = "friday"
+        return await self._show_day_menu()
+
+    async def async_step_saturday(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+        """Manage Saturday lessons."""
+        self._editing_day = "saturday"
+        return await self._show_day_menu()
+
+    async def async_step_sunday(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+        """Manage Sunday lessons."""
+        self._editing_day = "sunday"
+        return await self._show_day_menu()
+
+    async def _show_day_menu(self) -> FlowResult:
+        """Show menu for a specific day."""
+        lessons = self.config_entry.options.get("lessons", {}).get(self._editing_day, [])
+
+        menu_options = ["add_lesson"]
+
+        if lessons:
+            menu_options.extend([f"lesson_{i}" for i in range(len(lessons))])
+
+        return self.async_show_menu(
+            step_id=self._editing_day,
+            menu_options=menu_options,
         )
 
     async def async_step_add_lesson(
@@ -211,25 +183,25 @@ class TimetableOptionsFlow(config_entries.OptionsFlow):
         errors = {}
 
         if user_input is not None:
-            # Validate times
             start_time = user_input.get("start_time")
             end_time = user_input.get("end_time")
 
-            if start_time and end_time:
-                if start_time >= end_time:
-                    errors["end_time"] = "End time must be after start time"
+            if start_time and end_time and start_time >= end_time:
+                errors["end_time"] = "End time must be after start time"
 
             if not errors:
-                # Add lesson to data
-                if "lessons" not in self._current_data:
-                    self._current_data["lessons"] = {}
-                if self._editing_day not in self._current_data["lessons"]:
-                    self._current_data["lessons"][self._editing_day] = []
+                # Get current lessons
+                options = dict(self.config_entry.options)
+                if "lessons" not in options:
+                    options["lessons"] = {}
+                if self._editing_day not in options["lessons"]:
+                    options["lessons"][self._editing_day] = []
 
-                # Get color for subject
+                # Get color
                 subject = user_input.get("subject", "")
                 color = user_input.get("color") or SUBJECT_COLORS.get(subject, "#2196F3")
 
+                # Add lesson
                 lesson = {
                     "subject": user_input.get("subject"),
                     "start_time": start_time,
@@ -241,24 +213,18 @@ class TimetableOptionsFlow(config_entries.OptionsFlow):
                     "icon": user_input.get("icon", "mdi:book-open-variant"),
                 }
 
-                self._current_data["lessons"][self._editing_day].append(lesson)
+                options["lessons"][self._editing_day].append(lesson)
+                options["lessons"][self._editing_day].sort(key=lambda x: x["start_time"])
 
-                # Sort lessons by start time
-                self._current_data["lessons"][self._editing_day].sort(
-                    key=lambda x: x["start_time"]
-                )
+                return self.async_create_entry(title="", data=options)
 
-                # Save and go back to day view
-                return self.async_create_entry(title="", data=self._current_data)
-
-        # Build form schema with selectors for better UX
         return self.async_show_form(
             step_id="add_lesson",
             data_schema=vol.Schema(
                 {
                     vol.Required("subject"): selector.SelectSelector(
                         selector.SelectSelectorConfig(
-                            options=list(SUBJECT_COLORS.keys()) + ["Other"],
+                            options=list(SUBJECT_COLORS.keys()),
                             mode=selector.SelectSelectorMode.DROPDOWN,
                             custom_value=True,
                         )
@@ -268,130 +234,28 @@ class TimetableOptionsFlow(config_entries.OptionsFlow):
                     vol.Optional("room"): str,
                     vol.Optional("teacher"): str,
                     vol.Optional("notes"): selector.TextSelector(
-                        selector.TextSelectorConfig(
-                            multiline=True,
-                            type=selector.TextSelectorType.TEXT,
-                        )
+                        selector.TextSelectorConfig(multiline=True)
                     ),
                     vol.Optional("color"): selector.ColorRGBSelector(),
                     vol.Optional("icon", default="mdi:book-open-variant"): selector.IconSelector(),
                 }
             ),
             errors=errors,
-            description_placeholders={
-                "day": self._editing_day.title(),
-            },
         )
 
-    async def async_step_edit_lesson(
+    async def async_step_vacations(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        """Edit an existing lesson."""
-        lessons = self._current_data.get("lessons", {}).get(self._editing_day, [])
-        lesson = lessons[self._editing_lesson_index]
+        """Manage vacations."""
+        vacations = self.config_entry.options.get("vacations", [])
 
-        errors = {}
+        menu_options = ["add_vacation"]
 
-        if user_input is not None:
-            # Validate times
-            start_time = user_input.get("start_time")
-            end_time = user_input.get("end_time")
-
-            if start_time and end_time:
-                if start_time >= end_time:
-                    errors["end_time"] = "End time must be after start time"
-
-            if not errors:
-                # Update lesson
-                subject = user_input.get("subject", "")
-                color = user_input.get("color") or SUBJECT_COLORS.get(subject, lesson.get("color", "#2196F3"))
-
-                lessons[self._editing_lesson_index] = {
-                    "subject": user_input.get("subject"),
-                    "start_time": start_time,
-                    "end_time": end_time,
-                    "room": user_input.get("room", ""),
-                    "teacher": user_input.get("teacher", ""),
-                    "notes": user_input.get("notes", ""),
-                    "color": color,
-                    "icon": user_input.get("icon", "mdi:book-open-variant"),
-                }
-
-                # Sort lessons by start time
-                lessons.sort(key=lambda x: x["start_time"])
-
-                # Save and go back
-                return self.async_create_entry(title="", data=self._current_data)
-
-        # Pre-fill with current values
-        return self.async_show_form(
-            step_id="edit_lesson",
-            data_schema=vol.Schema(
-                {
-                    vol.Required("subject", default=lesson.get("subject", "")): selector.SelectSelector(
-                        selector.SelectSelectorConfig(
-                            options=list(SUBJECT_COLORS.keys()) + ["Other"],
-                            mode=selector.SelectSelectorMode.DROPDOWN,
-                            custom_value=True,
-                        )
-                    ),
-                    vol.Required("start_time", default=lesson.get("start_time", "08:00")): selector.TimeSelector(),
-                    vol.Required("end_time", default=lesson.get("end_time", "08:45")): selector.TimeSelector(),
-                    vol.Optional("room", default=lesson.get("room", "")): str,
-                    vol.Optional("teacher", default=lesson.get("teacher", "")): str,
-                    vol.Optional("notes", default=lesson.get("notes", "")): selector.TextSelector(
-                        selector.TextSelectorConfig(
-                            multiline=True,
-                            type=selector.TextSelectorType.TEXT,
-                        )
-                    ),
-                    vol.Optional("color", default=lesson.get("color")): selector.ColorRGBSelector(),
-                    vol.Optional("icon", default=lesson.get("icon", "mdi:book-open-variant")): selector.IconSelector(),
-                }
-            ),
-            errors=errors,
-        )
-
-    async def async_step_delete_lesson(self, index: int) -> FlowResult:
-        """Delete a lesson."""
-        lessons = self._current_data.get("lessons", {}).get(self._editing_day, [])
-        if 0 <= index < len(lessons):
-            del lessons[index]
-            return self.async_create_entry(title="", data=self._current_data)
-        return await self.async_step_day_lessons()
-
-    async def async_step_vacation_list(
-        self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
-        """List and manage vacations."""
-        if user_input is not None:
-            if user_input["action"] == "add":
-                return await self.async_step_add_vacation()
-            elif user_input["action"] == "back":
-                return await self.async_step_init()
-            elif user_input["action"].startswith("edit_"):
-                self._editing_vacation_index = int(user_input["action"].split("_")[1])
-                return await self.async_step_edit_vacation()
-            elif user_input["action"].startswith("delete_"):
-                index = int(user_input["action"].split("_")[1])
-                return await self.async_step_delete_vacation(index)
-
-        vacations = self._current_data.get("vacations", [])
-
-        menu_options = {}
-
-        for i, vacation in enumerate(vacations):
-            menu_options[f"edit_{i}"] = (
-                f"✏️ {vacation.get('label')} "
-                f"({vacation.get('start_date')} - {vacation.get('end_date')})"
-            )
-            menu_options[f"delete_{i}"] = f"🗑️ Delete {vacation.get('label')}"
-
-        menu_options["add"] = "➕ Add New Vacation"
-        menu_options["back"] = "⬅️ Back to Main Menu"
+        if vacations:
+            menu_options.extend([f"vacation_{i}" for i in range(len(vacations))])
 
         return self.async_show_menu(
-            step_id="vacation_list",
+            step_id="vacations",
             menu_options=menu_options,
         )
 
@@ -409,19 +273,19 @@ class TimetableOptionsFlow(config_entries.OptionsFlow):
                 errors["end_date"] = "End date must be after start date"
 
             if not errors:
-                if "vacations" not in self._current_data:
-                    self._current_data["vacations"] = []
+                options = dict(self.config_entry.options)
+                if "vacations" not in options:
+                    options["vacations"] = []
 
-                self._current_data["vacations"].append({
+                options["vacations"].append({
                     "label": user_input.get("label"),
                     "start_date": start,
                     "end_date": end,
                 })
 
-                # Sort by start date
-                self._current_data["vacations"].sort(key=lambda x: x["start_date"])
+                options["vacations"].sort(key=lambda x: x["start_date"])
 
-                return self.async_create_entry(title="", data=self._current_data)
+                return self.async_create_entry(title="", data=options)
 
         return self.async_show_form(
             step_id="add_vacation",
@@ -435,61 +299,15 @@ class TimetableOptionsFlow(config_entries.OptionsFlow):
             errors=errors,
         )
 
-    async def async_step_edit_vacation(
-        self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
-        """Edit a vacation period."""
-        vacations = self._current_data.get("vacations", [])
-        vacation = vacations[self._editing_vacation_index]
-
-        errors = {}
-
-        if user_input is not None:
-            start = user_input.get("start_date")
-            end = user_input.get("end_date")
-
-            if start and end and start > end:
-                errors["end_date"] = "End date must be after start date"
-
-            if not errors:
-                vacations[self._editing_vacation_index] = {
-                    "label": user_input.get("label"),
-                    "start_date": start,
-                    "end_date": end,
-                }
-
-                vacations.sort(key=lambda x: x["start_date"])
-
-                return self.async_create_entry(title="", data=self._current_data)
-
-        return self.async_show_form(
-            step_id="edit_vacation",
-            data_schema=vol.Schema(
-                {
-                    vol.Required("label", default=vacation.get("label", "")): str,
-                    vol.Required("start_date", default=vacation.get("start_date")): selector.DateSelector(),
-                    vol.Required("end_date", default=vacation.get("end_date")): selector.DateSelector(),
-                }
-            ),
-            errors=errors,
-        )
-
-    async def async_step_delete_vacation(self, index: int) -> FlowResult:
-        """Delete a vacation period."""
-        vacations = self._current_data.get("vacations", [])
-        if 0 <= index < len(vacations):
-            del vacations[index]
-            return self.async_create_entry(title="", data=self._current_data)
-        return await self.async_step_vacation_list()
-
     async def async_step_settings(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        """Manage general settings."""
+        """Manage settings."""
         if user_input is not None:
-            self._current_data["name"] = user_input.get("name", "TimeTable")
-            self._current_data["include_weekends"] = user_input.get("include_weekends", False)
-            return self.async_create_entry(title="", data=self._current_data)
+            options = dict(self.config_entry.options)
+            options["name"] = user_input.get("name", "TimeTable")
+            options["include_weekends"] = user_input.get("include_weekends", False)
+            return self.async_create_entry(title="", data=options)
 
         return self.async_show_form(
             step_id="settings",
@@ -497,11 +315,11 @@ class TimetableOptionsFlow(config_entries.OptionsFlow):
                 {
                     vol.Required(
                         "name",
-                        default=self._current_data.get("name", "TimeTable"),
+                        default=self.config_entry.options.get("name", "TimeTable"),
                     ): str,
                     vol.Required(
                         "include_weekends",
-                        default=self._current_data.get("include_weekends", False),
+                        default=self.config_entry.options.get("include_weekends", False),
                     ): bool,
                 }
             ),
