@@ -44,6 +44,12 @@ _LOGGER = logging.getLogger(__name__)
 PLATFORMS = ["sensor", "binary_sensor"]
 
 
+async def async_setup(hass: HomeAssistant, config: dict) -> bool:
+    """Set up the TimeTable component (YAML not supported)."""
+    # This integration is configured via config flow only
+    return True
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Stundenplan from a config entry."""
     try:

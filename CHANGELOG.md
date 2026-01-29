@@ -5,6 +5,21 @@ All notable changes to TimeTable will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.8] - 2026-01-29
+
+### Fixed
+- Fixed terminology inconsistency - changed "Stundenplan" to "TimeTable" in strings.json
+- Fixed terminology inconsistency - changed "Timetable" (lowercase t) to "TimeTable" in en.json
+- Completed strings.json with entity and service translations
+- Fixed README instruction (changed "Stundenplan" to "TimeTable" in installation steps)
+
+### Added
+- Added async_setup() stub function for full Home Assistant compatibility
+
+### Changed
+- Updated frontend card version to match backend (1.0.8)
+- Improved translation system completeness
+
 ## [1.0.7] - 2026-01-26
 
 ### Added

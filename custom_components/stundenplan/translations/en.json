@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "title": "Set up Timetable",
+        "title": "Set up TimeTable",
         "description": "Configure your school schedule tracker",
         "data": {
           "name": "Name",
@@ -11,13 +11,13 @@
       }
     },
     "abort": {
-      "already_configured": "Timetable is already configured"
+      "already_configured": "TimeTable is already configured"
     }
   },
   "options": {
     "step": {
       "init": {
-        "title": "Timetable Options",
+        "title": "TimeTable Options",
         "description": "Configure schedule options",
         "data": {
           "name": "Name",

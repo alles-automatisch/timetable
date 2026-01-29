@@ -37,7 +37,7 @@ A comprehensive Home Assistant integration for managing and displaying school ti
 5. Add this repository URL: `https://github.com/alles-automatisch/timetable`
 6. Select category: "Integration"
 7. Click "Add"
-8. Find "Stundenplan" in the integration list and install it
+8. Find "TimeTable" in the integration list and install it
 9. Restart Home Assistant
 
 ### Manual Installation
