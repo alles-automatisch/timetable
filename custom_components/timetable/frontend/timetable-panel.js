@@ -29,12 +29,17 @@ class TimetablePanel extends HTMLElement {
   set hass(hass) {
     this._hass = hass;
     this._loading = false;
-    this.render();
+    // Don't re-render if a modal is open to prevent input focus loss
+    if (!this._showLessonEditor && !this._showVacationEditor &&
+        !this._showTemplateSelector && !this._showImportExport &&
+        !this._showDashboardHelper) {
+      this.render();
+    }
   }
 
   connectedCallback() {
     console.info(
-      '%c TIMETABLE-PANEL %c 4.0.1 ',
+      '%c TIMETABLE-PANEL %c 4.0.4 ',
       'color: white; background: #667eea; font-weight: 700;',
       'color: #667eea; background: white; font-weight: 700;'
     );
@@ -547,13 +552,13 @@ class TimetablePanel extends HTMLElement {
       <div class="vacations-container">
         <div class="vacations-header">
           <button class="primary-btn" id="add-vacation-btn">
-            <ha-icon icon="mdi:plus"></ha-icon>
+            <i class="mdi mdi-plus"></i>
             <span>Add Vacation</span>
           </button>
         </div>
         ${vacations.length === 0 ? `
           <div class="empty-state">
-            <ha-icon icon="mdi:beach"></ha-icon>
+            <i class="mdi mdi-beach"></i>
             <p>No vacations planned yet</p>
           </div>
         ` : `
@@ -561,14 +566,14 @@ class TimetablePanel extends HTMLElement {
             ${vacations.map((vacation, index) => `
               <div class="vacation-card">
                 <div class="vacation-icon">
-                  <ha-icon icon="mdi:beach"></ha-icon>
+                  <i class="mdi mdi-beach"></i>
                 </div>
                 <div class="vacation-info">
                   <h3>${vacation.label}</h3>
                   <p>${vacation.start_date} to ${vacation.end_date}</p>
                 </div>
                 <button class="icon-btn" data-vacation-index="${index}">
-                  <ha-icon icon="mdi:delete"></ha-icon>
+                  <i class="mdi mdi-delete"></i>
                 </button>
               </div>
             `).join('')}
@@ -603,7 +608,7 @@ class TimetablePanel extends HTMLElement {
           <div class="modal-header">
             <h2>${isNew ? 'Add Lesson' : 'Edit Lesson'}</h2>
             <button class="icon-btn" id="close-editor">
-              <ha-icon icon="mdi:close"></ha-icon>
+              <i class="mdi mdi-close"></i>
             </button>
           </div>
           <div class="modal-body">
@@ -688,28 +693,30 @@ class TimetablePanel extends HTMLElement {
             <div class="form-group">
               <label>Icon</label>
               <div class="icon-picker">
-                ${iconPresets.map(icon => `
+                ${iconPresets.map(icon => {
+                  const iconName = icon.replace('mdi:', '');
+                  return `
                   <button
                     class="icon-option ${data.icon === icon ? 'selected' : ''}"
                     data-icon="${icon}"
                   >
-                    <ha-icon icon="${icon}"></ha-icon>
+                    <i class="mdi mdi-${iconName}"></i>
                   </button>
-                `).join('')}
+                `}).join('')}
               </div>
             </div>
           </div>
           <div class="modal-footer">
             ${!isNew ? `
               <button class="danger-btn" id="delete-lesson-btn">
-                <ha-icon icon="mdi:delete"></ha-icon>
+                <i class="mdi mdi-delete"></i>
                 <span>Delete</span>
               </button>
             ` : ''}
             <div class="button-group">
               <button class="secondary-btn" id="cancel-lesson-btn">Cancel</button>
               <button class="primary-btn" id="save-lesson-btn">
-                <ha-icon icon="mdi:check"></ha-icon>
+                <i class="mdi mdi-check"></i>
                 <span>Save</span>
               </button>
             </div>
@@ -731,7 +738,7 @@ class TimetablePanel extends HTMLElement {
           <div class="modal-header">
             <h2>${isNew ? 'Add Vacation' : 'Edit Vacation'}</h2>
             <button class="icon-btn" id="close-vacation-editor">
-              <ha-icon icon="mdi:close"></ha-icon>
+              <i class="mdi mdi-close"></i>
             </button>
           </div>
           <div class="modal-body">
@@ -771,7 +778,7 @@ class TimetablePanel extends HTMLElement {
             <div class="button-group">
               <button class="secondary-btn" id="cancel-vacation-btn">Cancel</button>
               <button class="primary-btn" id="save-vacation-btn">
-                <ha-icon icon="mdi:check"></ha-icon>
+                <i class="mdi mdi-check"></i>
                 <span>Save</span>
               </button>
             </div>
@@ -792,7 +799,7 @@ class TimetablePanel extends HTMLElement {
           <div class="modal-header">
             <h2>Load Schedule Template</h2>
             <button class="icon-btn" id="close-template-selector">
-              <ha-icon icon="mdi:close"></ha-icon>
+              <i class="mdi mdi-close"></i>
             </button>
           </div>
           <div class="modal-body">
@@ -803,7 +810,7 @@ class TimetablePanel extends HTMLElement {
               ${Object.entries(templates).map(([id, template]) => `
                 <div class="template-card" data-template="${id}">
                   <div class="template-icon">
-                    <ha-icon icon="mdi:school"></ha-icon>
+                    <i class="mdi mdi-school"></i>
                   </div>
                   <h3>${template.name}</h3>
                   <p>${template.description}</p>
@@ -2356,12 +2363,11 @@ show_colors: true`;
           left: 0;
           right: 0;
           bottom: 0;
-          background: rgba(0, 0, 0, 0.5);
+          background: rgba(0, 0, 0, 0.7);
           display: flex;
           align-items: center;
           justify-content: center;
           z-index: 1000;
-          backdrop-filter: blur(4px);
         }
 
         .modal-content {

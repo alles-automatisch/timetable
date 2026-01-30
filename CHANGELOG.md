@@ -5,6 +5,24 @@ All notable changes to TimeTable will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.4] - 2026-01-30
+
+### Fixed
+- **Input Focus Loss** - Prevented modal re-renders when Home Assistant updates, allowing users to type without losing focus
+- **Blurry Modal Background** - Removed backdrop blur effect for better readability (solid dark overlay)
+- **Icons Missing** - Replaced all remaining `<ha-icon>` elements with native MDI icons for 100% icon display without external dependencies
+
+### Changed
+- Modal overlay now solid (0.7 opacity) instead of blurred
+- All icons self-contained using MDI classes (`<i class="mdi mdi-*">`)
+- `set hass()` method now skips re-render when any modal is open
+
+### Technical
+- Conditional rendering in `set hass()` to preserve input focus
+- Removed `backdrop-filter: blur(4px)` from `.modal-overlay` CSS
+- Icon picker now generates MDI elements directly from icon names
+- All modals (lesson, vacation, template, import/export) use MDI icons
+
 ## [4.0.3] - 2026-01-30
 
 ### Fixed
