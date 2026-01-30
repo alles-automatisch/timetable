@@ -4,6 +4,25 @@ class TimetableCard extends HTMLElement {
     this.attachShadow({ mode: 'open' });
     this._config = {};
     this._hass = null;
+    this._loadMaterialIcons();
+  }
+
+  _loadMaterialIcons() {
+    // Load MDI in both document head and shadow root for icon fallback
+    if (!document.querySelector('link[href*="materialdesignicons"]')) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css';
+      document.head.appendChild(link);
+    }
+
+    // Also add to shadow root
+    if (!this.shadowRoot.querySelector('link[href*="materialdesignicons"]')) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css';
+      this.shadowRoot.appendChild(link);
+    }
   }
 
   setConfig(config) {
@@ -17,6 +36,8 @@ class TimetableCard extends HTMLElement {
       show_room: config.show_room !== false,
       show_teacher: config.show_teacher !== false,
       show_colors: config.show_colors !== false,
+      show_logo: config.show_logo !== false,
+      logo_url: config.logo_url || '/local/community/timetable/logo.png',
       compact_mode: config.compact_mode || false,
       title: config.title || 'TimeTable',
       ...config
@@ -88,7 +109,15 @@ class TimetableCard extends HTMLElement {
     return `
       <div class="header">
         <div class="header-title">
-          <ha-icon icon="mdi:school"></ha-icon>
+          ${this._config.show_logo ? `
+            <img src="${this._config.logo_url}" alt="TimeTable" class="logo"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="logo-fallback" style="display: none;">
+              <i class="mdi mdi-school"></i>
+            </div>
+          ` : `
+            <i class="mdi mdi-school header-icon"></i>
+          `}
           <span>${this._config.title}</span>
         </div>
         <div class="view-toggle">
@@ -275,10 +304,34 @@ class TimetableCard extends HTMLElement {
         .header-title {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 12px;
           font-size: 20px;
           font-weight: 500;
           color: var(--stp-text-primary);
+        }
+
+        .header-title .logo {
+          height: 32px;
+          width: 32px;
+          object-fit: contain;
+          border-radius: 6px;
+        }
+
+        .header-title .logo-fallback {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 32px;
+          height: 32px;
+          background: var(--stp-primary-color);
+          color: white;
+          border-radius: 6px;
+          font-size: 20px;
+        }
+
+        .header-title .header-icon {
+          font-size: 24px;
+          color: var(--stp-primary-color);
         }
 
         .header-title ha-icon {
@@ -705,7 +758,7 @@ window.customCards.push({
 });
 
 console.info(
-  '%c TIMETABLE-CARD %c 3.0.3 ',
+  '%c TIMETABLE-CARD %c 4.1.0 ',
   'color: white; background: #667eea; font-weight: 700;',
   'color: #667eea; background: white; font-weight: 700;'
 );

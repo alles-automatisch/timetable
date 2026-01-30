@@ -5,6 +5,75 @@ All notable changes to TimeTable will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.0] - 2026-01-30
+
+### Added
+- **New Card: Next Lesson Card** (`timetable-next-lesson-card.js`)
+  - Compact, focused card for showing current/upcoming lessons
+  - Configurable to show current lesson only
+  - Option to show previous lesson (if recently passed)
+  - Option to show 1 or 2 upcoming lessons
+  - Clean, modern design with lesson status badges
+  - Perfect for dashboard quick glance
+
+- **New Card: Full Schedule Card** (`timetable-schedule-card.js`)
+  - Full week schedule view in grid layout
+  - Current lesson highlighted with pulse animation
+  - Responsive grid adapts to screen size
+  - Compact mode for smaller displays
+  - "Today" column specially highlighted
+  - Shows all weekdays (optionally weekends)
+
+- **Integration Logo Support**
+  - All three cards now support `show_logo` option
+  - Logo displayed in card headers
+  - Automatic fallback to MDI icon if logo fails to load
+  - Professional branding throughout
+
+### Enhanced
+- **Original TimeTable Card** (`timetable-card.js`)
+  - Added logo support for consistency
+  - Updated to v4.1.0
+  - Improved header styling
+
+### Configuration Options
+
+**Next Lesson Card:**
+```yaml
+- type: custom:timetable-next-lesson-card
+  entity: sensor.timetable_current
+  show_current_only: false     # Only show if lesson is active
+  show_previous: false          # Show previous lesson
+  show_upcoming: 1              # 1 or 2 upcoming lessons
+  show_room: true
+  show_teacher: true
+  show_colors: true
+  show_logo: true
+  title: "Next Lesson"
+```
+
+**Full Schedule Card:**
+```yaml
+- type: custom:timetable-schedule-card
+  entity: sensor.timetable_current
+  show_weekends: false
+  show_room: true
+  show_teacher: true
+  show_colors: true
+  show_logo: true
+  compact_mode: false
+  highlight_current: true
+  title: "Schedule"
+```
+
+### Technical
+- Three separate card files for modularity
+- All cards registered in `window.customCards`
+- Consistent design language across all cards
+- Responsive grid layouts
+- Smooth animations and transitions
+- Full theme support (light/dark)
+
 ## [4.0.4] - 2026-01-30
 
 ### Fixed
