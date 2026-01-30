@@ -5,6 +5,42 @@ All notable changes to TimeTable will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.3] - 2026-01-30
+
+### Fixed
+- **Icons Not Showing** - MDI now loads in both document head and shadow root
+- **Button Flickering** - Optimized CSS transitions with will-change
+- **Template Selector Dark Theme** - Proper colors for dark/light themes
+- **Template Cards Jumping** - Reduced transform amount, smoother animations
+- **Template Click Not Working** - Entire card now clickable, not just button
+
+### Added
+- **Click-to-Create Feature** (Outlook-style calendar behavior)
+  - Click anywhere in schedule grid to create lesson
+  - Calculates time from Y position
+  - Snaps to 15-minute intervals
+  - Default 1-hour duration
+  - Crosshair cursor for visual feedback
+  - Opens editor with pre-filled times
+
+### Changed
+- Icon loading strategy: Double-load in document + shadow root for compatibility
+- CSS transitions: `all` → specific properties for better performance
+- Button hover: 2px → 1px transform (smoother)
+- Template hover: 4px → 2px transform (less jumpy)
+- Template card: Entire card clickable (better UX)
+- Day grid: Added click-to-add overlay with crosshair cursor
+
+### Technical
+- Added `_addLessonAtTime()` method for precise time-based lesson creation
+- Added `.click-to-add-overlay` CSS class for interactive areas
+- Optimized transforms with `will-change` property
+- Force re-render after MDI loads in shadow root
+- Template card click handlers on entire card element
+- Proper icon name conversion (mdi: prefix handling)
+- Added active states for button press feedback
+- Disabled buttons use pointer-events: none
+
 ## [4.0.2] - 2026-01-30
 
 ### Fixed
