@@ -18,10 +18,12 @@ class TimetablePanel extends HTMLElement {
     this._showVacationEditor = false;
     this._showTemplateSelector = false;
     this._showImportExport = false;
+    this._showDashboardHelper = false;
     this._draggedLesson = null;
     this._resizingLesson = null;
     this._undoStack = [];
     this._redoStack = [];
+    this._activeTab = 'schedule';
   }
 
   set hass(hass) {
@@ -36,8 +38,23 @@ class TimetablePanel extends HTMLElement {
       'color: white; background: #667eea; font-weight: 700;',
       'color: #667eea; background: white; font-weight: 700;'
     );
+
+    // Load Material Design Icons
+    this._loadMaterialIcons();
+
     this.render();
     this._attachKeyboardShortcuts();
+  }
+
+  _loadMaterialIcons() {
+    // Check if Material Design Icons are already loaded
+    if (document.querySelector('link[href*="materialdesignicons"]')) return;
+
+    // Load MDI CSS
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css';
+    document.head.appendChild(link);
   }
 
   disconnectedCallback() {
@@ -156,24 +173,27 @@ class TimetablePanel extends HTMLElement {
         <div class="header-content">
           <div class="header-row">
             <div class="title-section">
-              <ha-icon icon="mdi:table-clock"></ha-icon>
+              <i class="mdi mdi-table-clock"></i>
               <h1>TimeTable Manager</h1>
             </div>
             <div class="header-actions">
               <button class="header-btn ${!canUndo ? 'disabled' : ''}" id="undo-btn" title="Undo (Ctrl+Z)" ${!canUndo ? 'disabled' : ''}>
-                <ha-icon icon="mdi:undo"></ha-icon>
+                <i class="mdi mdi-undo"></i>
               </button>
               <button class="header-btn ${!canRedo ? 'disabled' : ''}" id="redo-btn" title="Redo (Ctrl+Shift+Z)" ${!canRedo ? 'disabled' : ''}>
-                <ha-icon icon="mdi:redo"></ha-icon>
+                <i class="mdi mdi-redo"></i>
               </button>
               <button class="header-btn" id="template-btn" title="Load Template">
-                <ha-icon icon="mdi:file-document-multiple"></ha-icon>
+                <i class="mdi mdi-file-document-multiple"></i>
               </button>
               <button class="header-btn" id="duplicate-btn" title="Duplicate Schedule">
-                <ha-icon icon="mdi:content-copy"></ha-icon>
+                <i class="mdi mdi-content-copy"></i>
               </button>
               <button class="header-btn" id="import-export-btn" title="Import/Export">
-                <ha-icon icon="mdi:download"></ha-icon>
+                <i class="mdi mdi-download"></i>
+              </button>
+              <button class="header-btn" id="dashboard-btn" title="Add Dashboard Card">
+                <i class="mdi mdi-view-dashboard"></i>
               </button>
             </div>
           </div>
@@ -759,7 +779,7 @@ class TimetablePanel extends HTMLElement {
           <div class="modal-header">
             <h2>Import / Export Schedule</h2>
             <button class="icon-btn" id="close-import-export">
-              <ha-icon icon="mdi:close"></ha-icon>
+              <i class="mdi mdi-close"></i>
             </button>
           </div>
           <div class="modal-body">
@@ -767,7 +787,7 @@ class TimetablePanel extends HTMLElement {
               <h3>Export Schedule</h3>
               <p>Download your current schedule as a JSON file for backup or sharing.</p>
               <button class="primary-btn" id="export-btn">
-                <ha-icon icon="mdi:download"></ha-icon>
+                <i class="mdi mdi-download"></i>
                 <span>Export Schedule</span>
               </button>
             </div>
@@ -784,7 +804,7 @@ class TimetablePanel extends HTMLElement {
                 style="display: none;"
               />
               <button class="primary-btn" id="import-btn">
-                <ha-icon icon="mdi:upload"></ha-icon>
+                <i class="mdi mdi-upload"></i>
                 <span>Import Schedule</span>
               </button>
             </div>
@@ -797,15 +817,84 @@ class TimetablePanel extends HTMLElement {
     `;
   }
 
+  _renderDashboardHelper() {
+    if (!this._showDashboardHelper) return '';
+
+    const entity = this._getConfigEntry();
+    const entityId = entity ? 'sensor.timetable_current' : 'sensor.timetable_current';
+
+    const yamlCode = `type: custom:timetable-card
+entity: ${entityId}
+title: TimeTable
+view: today
+show_weekends: false
+show_room: true
+show_teacher: true
+show_colors: true`;
+
+    return `
+      <div class="modal-overlay">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>Add Dashboard Card</h2>
+            <button class="icon-btn" id="close-dashboard-helper">
+              <i class="mdi mdi-close"></i>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="dashboard-helper-section">
+              <h3>Quick Add Card</h3>
+              <p>Copy this YAML code and paste it into your dashboard:</p>
+
+              <div class="code-block">
+                <pre><code>${yamlCode}</code></pre>
+                <button class="copy-btn" id="copy-yaml-btn" title="Copy to clipboard">
+                  <i class="mdi mdi-content-copy"></i>
+                </button>
+              </div>
+
+              <div class="help-steps">
+                <h4>How to add:</h4>
+                <ol>
+                  <li>Click "Copy" button above</li>
+                  <li>Go to your dashboard</li>
+                  <li>Click "+ Add Card"</li>
+                  <li>Choose "Manual" or click "Show Code Editor"</li>
+                  <li>Paste the YAML code</li>
+                  <li>Click "Save"</li>
+                </ol>
+              </div>
+
+              <div class="card-preview">
+                <h4>What you'll see:</h4>
+                <ul>
+                  <li><i class="mdi mdi-check-circle"></i> Current lesson display</li>
+                  <li><i class="mdi mdi-check-circle"></i> Next lesson preview</li>
+                  <li><i class="mdi mdi-check-circle"></i> Today's full schedule</li>
+                  <li><i class="mdi mdi-check-circle"></i> Color-coded subjects</li>
+                  <li><i class="mdi mdi-check-circle"></i> Room and teacher info</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="secondary-btn" id="cancel-dashboard-btn">Close</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   _renderTabs() {
+    const activeTab = this._activeTab || 'schedule';
     return `
       <div class="tabs">
-        <button class="tab active" data-tab="schedule">
-          <ha-icon icon="mdi:calendar-week"></ha-icon>
+        <button class="tab ${activeTab === 'schedule' ? 'active' : ''}" data-tab="schedule">
+          <i class="mdi mdi-calendar-week"></i>
           <span>Schedule</span>
         </button>
-        <button class="tab" data-tab="vacations">
-          <ha-icon icon="mdi:beach"></ha-icon>
+        <button class="tab ${activeTab === 'vacations' ? 'active' : ''}" data-tab="vacations">
+          <i class="mdi mdi-beach"></i>
           <span>Vacations</span>
         </button>
       </div>
@@ -830,24 +919,22 @@ class TimetablePanel extends HTMLElement {
       return;
     }
 
+    const activeTab = this._activeTab || 'schedule';
+
     this.shadowRoot.innerHTML = `
       ${this._getStyles()}
       <div class="container">
         ${this._renderHeader()}
         ${this._renderTabs()}
         <div class="content">
-          <div class="tab-content active" data-content="schedule">
-            ${this._renderWeekGrid()}
-          </div>
-          <div class="tab-content" data-content="vacations">
-            ${this._renderVacations()}
-          </div>
+          ${activeTab === 'schedule' ? this._renderWeekGrid() : this._renderVacations()}
         </div>
       </div>
       ${this._renderLessonEditor()}
       ${this._renderVacationEditor()}
       ${this._renderTemplateSelector()}
       ${this._renderImportExport()}
+      ${this._renderDashboardHelper()}
     `;
 
     this._attachEventListeners();
@@ -860,6 +947,7 @@ class TimetablePanel extends HTMLElement {
     const templateBtn = this.shadowRoot.getElementById('template-btn');
     const duplicateBtn = this.shadowRoot.getElementById('duplicate-btn');
     const importExportBtn = this.shadowRoot.getElementById('import-export-btn');
+    const dashboardBtn = this.shadowRoot.getElementById('dashboard-btn');
 
     if (undoBtn) undoBtn.addEventListener('click', () => this._undo());
     if (redoBtn) redoBtn.addEventListener('click', () => this._redo());
@@ -870,6 +958,10 @@ class TimetablePanel extends HTMLElement {
     if (duplicateBtn) duplicateBtn.addEventListener('click', () => this._duplicateSchedule());
     if (importExportBtn) importExportBtn.addEventListener('click', () => {
       this._showImportExport = true;
+      this.render();
+    });
+    if (dashboardBtn) dashboardBtn.addEventListener('click', () => {
+      this._showDashboardHelper = true;
       this.render();
     });
 
@@ -1068,18 +1160,44 @@ class TimetablePanel extends HTMLElement {
         });
       }
     }
+
+    // Dashboard helper
+    if (this._showDashboardHelper) {
+      const closeBtn = this.shadowRoot.getElementById('close-dashboard-helper');
+      const cancelBtn = this.shadowRoot.getElementById('cancel-dashboard-btn');
+      const copyBtn = this.shadowRoot.getElementById('copy-yaml-btn');
+
+      if (closeBtn) closeBtn.addEventListener('click', () => {
+        this._showDashboardHelper = false;
+        this.render();
+      });
+      if (cancelBtn) cancelBtn.addEventListener('click', () => {
+        this._showDashboardHelper = false;
+        this.render();
+      });
+
+      if (copyBtn) {
+        copyBtn.addEventListener('click', () => {
+          const codeBlock = this.shadowRoot.querySelector('.code-block code');
+          if (codeBlock) {
+            navigator.clipboard.writeText(codeBlock.textContent).then(() => {
+              copyBtn.innerHTML = '<i class="mdi mdi-check"></i>';
+              setTimeout(() => {
+                copyBtn.innerHTML = '<i class="mdi mdi-content-copy"></i>';
+              }, 2000);
+            }).catch(err => {
+              console.error('Failed to copy:', err);
+              alert('Failed to copy to clipboard');
+            });
+          }
+        });
+      }
+    }
   }
 
   _switchTab(tabName) {
-    // Update tab buttons
-    this.shadowRoot.querySelectorAll('.tab').forEach(tab => {
-      tab.classList.toggle('active', tab.dataset.tab === tabName);
-    });
-
-    // Update tab content
-    this.shadowRoot.querySelectorAll('.tab-content').forEach(content => {
-      content.classList.toggle('active', content.dataset.content === tabName);
-    });
+    this._activeTab = tabName;
+    this.render();
   }
 
   _addLesson(weekday) {
@@ -1643,15 +1761,29 @@ class TimetablePanel extends HTMLElement {
   _getStyles() {
     return `
       <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
         :host {
           display: block;
           height: 100vh;
           background: var(--primary-background-color);
-          font-family: var(--paper-font-body1_-_font-family);
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
         }
 
         * {
           box-sizing: border-box;
+        }
+
+        /* Material Design Icons */
+        .mdi {
+          font-size: 24px;
+          line-height: 1;
+        }
+
+        .mdi::before {
+          display: inline-block;
         }
 
         .container {
@@ -1714,18 +1846,19 @@ class TimetablePanel extends HTMLElement {
           cursor: not-allowed;
         }
 
-        .header-btn ha-icon {
-          --mdc-icon-size: 20px;
+        .header-btn .mdi {
+          font-size: 20px;
         }
 
-        .title-section ha-icon {
-          --mdc-icon-size: 32px;
+        .title-section .mdi {
+          font-size: 32px;
         }
 
         .title-section h1 {
           margin: 0;
           font-size: 28px;
-          font-weight: 600;
+          font-weight: 700;
+          letter-spacing: -0.5px;
         }
 
         .stats {
@@ -1785,8 +1918,8 @@ class TimetablePanel extends HTMLElement {
           border-bottom-color: var(--primary-color);
         }
 
-        .tab ha-icon {
-          --mdc-icon-size: 20px;
+        .tab .mdi {
+          font-size: 20px;
         }
 
         .content {
@@ -2439,6 +2572,123 @@ class TimetablePanel extends HTMLElement {
           height: 1px;
           background: var(--divider-color);
           margin: 16px 0;
+        }
+
+        /* Dashboard Helper */
+        .dashboard-helper-section {
+          padding: 0;
+        }
+
+        .dashboard-helper-section h3 {
+          margin: 0 0 12px;
+          font-size: 18px;
+          font-weight: 600;
+        }
+
+        .dashboard-helper-section h4 {
+          margin: 20px 0 12px;
+          font-size: 15px;
+          font-weight: 600;
+          color: var(--primary-text-color);
+        }
+
+        .dashboard-helper-section p {
+          margin: 0 0 16px;
+          font-size: 14px;
+          color: var(--secondary-text-color);
+          line-height: 1.5;
+        }
+
+        .code-block {
+          position: relative;
+          background: var(--secondary-background-color);
+          border: 1px solid var(--divider-color);
+          border-radius: 8px;
+          padding: 16px;
+          margin-bottom: 20px;
+        }
+
+        .code-block pre {
+          margin: 0;
+          font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+          font-size: 13px;
+          line-height: 1.6;
+          overflow-x: auto;
+        }
+
+        .code-block code {
+          color: var(--primary-text-color);
+        }
+
+        .copy-btn {
+          position: absolute;
+          top: 12px;
+          right: 12px;
+          background: var(--primary-color);
+          color: white;
+          border: none;
+          border-radius: 6px;
+          padding: 8px 12px;
+          cursor: pointer;
+          font-size: 14px;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .copy-btn .mdi {
+          font-size: 16px;
+        }
+
+        .help-steps {
+          background: var(--secondary-background-color);
+          border-radius: 8px;
+          padding: 16px;
+          margin-bottom: 20px;
+        }
+
+        .help-steps ol {
+          margin: 8px 0 0;
+          padding-left: 20px;
+        }
+
+        .help-steps li {
+          margin: 8px 0;
+          font-size: 14px;
+          line-height: 1.5;
+          color: var(--primary-text-color);
+        }
+
+        .card-preview {
+          background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.05) 100%);
+          border-radius: 8px;
+          padding: 16px;
+        }
+
+        .card-preview ul {
+          list-style: none;
+          margin: 8px 0 0;
+          padding: 0;
+        }
+
+        .card-preview li {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin: 8px 0;
+          font-size: 14px;
+          color: var(--primary-text-color);
+        }
+
+        .card-preview .mdi {
+          color: var(--primary-color);
+          font-size: 18px;
         }
       </style>
     `;
