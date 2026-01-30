@@ -5,6 +5,28 @@ All notable changes to TimeTable will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.1] - 2026-01-30
+
+### Fixed
+- **Config Entry Error** - Enhanced config entry detection with multiple fallback methods
+- **Icons Not Displaying** - Improved MDI loading with better error handling and forced re-render
+- **Modal Backgrounds** - Added fallback colors for modals (white in light mode, dark in dark mode)
+- **Template Loading** - Better error messages and immediate render after template application
+- **Logo Paths** - Updated default logo URL from `/local/community/` to `/hacsfiles/` for HACS compatibility
+- **Card Resources** - Logo files now in www/ folder for proper serving
+
+### Added
+- **CARD_SETUP.md** - Comprehensive guide for dashboard card installation and troubleshooting
+- Debug logging for config entry issues
+- Better error messages throughout panel
+- Logo files copied to www/ folder
+
+### Changed
+- Logo default path: `/hacsfiles/timetable/logo.png` (was `/local/community/timetable/logo.png`)
+- MDI loading includes error handlers and retry logic
+- Modal CSS includes fallback colors
+- Template application shows success messages
+
 ## [4.1.0] - 2026-01-30
 
 ### Added

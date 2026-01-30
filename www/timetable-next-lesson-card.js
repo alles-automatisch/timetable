@@ -44,7 +44,7 @@ class TimetableNextLessonCard extends HTMLElement {
       show_teacher: config.show_teacher !== false,
       show_colors: config.show_colors !== false,
       show_logo: config.show_logo !== false,
-      logo_url: config.logo_url || '/local/community/timetable/logo.png',
+      logo_url: config.logo_url || '/hacsfiles/timetable/logo.png',
       title: config.title || 'Next Lesson',
       ...config
     };
