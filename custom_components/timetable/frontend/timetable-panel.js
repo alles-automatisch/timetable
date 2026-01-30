@@ -71,22 +71,41 @@ class TimetablePanel extends HTMLElement {
 
   _loadMaterialIcons() {
     // Check if Material Design Icons are already loaded
-    if (document.querySelector('link[href*="materialdesignicons"]')) {
+    const existingLink = document.querySelector('link[href*="materialdesignicons"]');
+    if (existingLink) {
       console.log('✓ Material Design Icons already loaded');
       return;
     }
 
-    // Load MDI CSS
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css';
-    link.onload = () => {
-      console.log('✓ Material Design Icons loaded successfully');
+    // Also check in shadow root
+    const shadowLink = this.shadowRoot.querySelector('link[href*="materialdesignicons"]');
+    if (shadowLink) {
+      console.log('✓ Material Design Icons already in shadow root');
+      return;
+    }
+
+    // Load MDI CSS in both document head and shadow root for better compatibility
+    const link1 = document.createElement('link');
+    link1.rel = 'stylesheet';
+    link1.href = 'https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css';
+    link1.onload = () => {
+      console.log('✓ Material Design Icons loaded in document head');
     };
-    link.onerror = () => {
-      console.warn('⚠ Failed to load Material Design Icons from CDN');
+    link1.onerror = () => {
+      console.warn('⚠ Failed to load MDI in document head');
     };
-    document.head.appendChild(link);
+    document.head.appendChild(link1);
+
+    // Also add to shadow root
+    const link2 = document.createElement('link');
+    link2.rel = 'stylesheet';
+    link2.href = 'https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css';
+    link2.onload = () => {
+      console.log('✓ Material Design Icons loaded in shadow root');
+      // Force re-render to show icons
+      this.render();
+    };
+    this.shadowRoot.appendChild(link2);
   }
 
   disconnectedCallback() {
@@ -298,11 +317,12 @@ class TimetablePanel extends HTMLElement {
         <div class="day-header">
           <span>${label}</span>
           <button class="add-lesson-btn" data-weekday="${weekday}">
-            <ha-icon icon="mdi:plus"></ha-icon>
+            <i class="mdi mdi-plus"></i>
           </button>
         </div>
         <div class="day-content drop-zone" data-weekday="${weekday}">
           ${this._renderTimeGrid()}
+          <div class="click-to-add-overlay" data-weekday="${weekday}"></div>
           ${lessons.map((lesson, index) => this._renderLesson(lesson, weekday, index)).join('')}
         </div>
       </div>
@@ -494,7 +514,7 @@ class TimetablePanel extends HTMLElement {
   _renderLesson(lesson, weekday, index) {
     const position = this._getLessonPosition(lesson);
     const color = lesson.color || '#667eea';
-    const icon = lesson.icon || 'mdi:book-open-variant';
+    const iconName = (lesson.icon || 'mdi:book-open-variant').replace('mdi:', 'mdi-');
 
     return `
       <div
@@ -507,12 +527,12 @@ class TimetablePanel extends HTMLElement {
         <div class="resize-handle resize-handle-top"></div>
         <div class="lesson-content">
           <div class="lesson-header">
-            <ha-icon icon="${icon}"></ha-icon>
+            <i class="mdi ${iconName}"></i>
             <span class="lesson-subject">${lesson.subject}</span>
           </div>
           <div class="lesson-time">${this._formatTime(lesson.start_time)} - ${this._formatTime(lesson.end_time)}</div>
-          ${lesson.room ? `<div class="lesson-meta"><ha-icon icon="mdi:door"></ha-icon>${lesson.room}</div>` : ''}
-          ${lesson.teacher ? `<div class="lesson-meta"><ha-icon icon="mdi:account"></ha-icon>${lesson.teacher}</div>` : ''}
+          ${lesson.room ? `<div class="lesson-meta"><i class="mdi mdi-door"></i>${lesson.room}</div>` : ''}
+          ${lesson.teacher ? `<div class="lesson-meta"><i class="mdi mdi-account"></i>${lesson.teacher}</div>` : ''}
         </div>
         <div class="resize-handle resize-handle-bottom"></div>
       </div>
@@ -1045,6 +1065,31 @@ show_colors: true`;
       });
     });
 
+    // Click-to-add overlays (like Outlook calendar)
+    this.shadowRoot.querySelectorAll('.click-to-add-overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => {
+        const weekday = overlay.dataset.weekday;
+        const rect = overlay.getBoundingClientRect();
+        const y = e.clientY - rect.top;
+
+        // Calculate time based on Y position (1px = 1 minute, 6am start)
+        const minutes = Math.round(y / 1) + (6 * 60);
+        const snappedMinutes = Math.round(minutes / 15) * 15;
+        const hours = Math.floor(snappedMinutes / 60);
+        const mins = snappedMinutes % 60;
+        const startTime = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+
+        // Default 1 hour duration
+        const endMinutes = snappedMinutes + 60;
+        const endHours = Math.floor(endMinutes / 60);
+        const endMins = endMinutes % 60;
+        const endTime = `${String(endHours).padStart(2, '0')}:${String(endMins).padStart(2, '0')}`;
+
+        // Create lesson at clicked time
+        this._addLessonAtTime(weekday, startTime, endTime);
+      });
+    });
+
     // Lesson editor
     if (this._showLessonEditor) {
       const closeBtn = this.shadowRoot.getElementById('close-editor');
@@ -1157,8 +1202,18 @@ show_colors: true`;
         this.render();
       });
 
+      // Template card clicks (entire card clickable)
+      this.shadowRoot.querySelectorAll('.template-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const templateId = card.dataset.template;
+          this._applyTemplate(templateId);
+        });
+      });
+
+      // Template button clicks (backup)
       this.shadowRoot.querySelectorAll('.select-template-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
           const templateId = btn.dataset.template;
           this._applyTemplate(templateId);
         });
@@ -1240,6 +1295,25 @@ show_colors: true`;
         subject: '',
         start_time: '08:00',
         end_time: '09:00',
+        room: '',
+        teacher: '',
+        notes: '',
+        color: '#667eea',
+        icon: 'mdi:book-open-variant'
+      }
+    };
+    this._showLessonEditor = true;
+    this.render();
+  }
+
+  _addLessonAtTime(weekday, startTime, endTime) {
+    this._editingLesson = {
+      weekday,
+      index: null,
+      data: {
+        subject: '',
+        start_time: startTime,
+        end_time: endTime,
         room: '',
         teacher: '',
         notes: '',
@@ -1865,17 +1939,23 @@ show_colors: true`;
           border-radius: 8px;
           color: white;
           cursor: pointer;
-          transition: all 0.2s;
+          transition: background 0.2s ease, transform 0.2s ease;
+          will-change: transform;
         }
 
         .header-btn:hover:not(.disabled) {
-          background: rgba(255, 255, 255, 0.3);
-          transform: translateY(-2px);
+          background: rgba(255, 255, 255, 0.35);
+          transform: translateY(-1px);
+        }
+
+        .header-btn:active:not(.disabled) {
+          transform: translateY(0);
         }
 
         .header-btn.disabled {
           opacity: 0.5;
           cursor: not-allowed;
+          pointer-events: none;
         }
 
         .header-btn .mdi {
@@ -2526,20 +2606,26 @@ show_colors: true`;
         }
 
         .template-card {
-          background: var(--secondary-background-color);
+          background: var(--card-background-color);
           border-radius: 12px;
           padding: 20px;
           display: flex;
           flex-direction: column;
           gap: 12px;
-          transition: all 0.2s;
-          border: 2px solid transparent;
+          transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+          border: 2px solid var(--divider-color);
+          will-change: transform;
+          cursor: pointer;
         }
 
         .template-card:hover {
           border-color: var(--primary-color);
-          transform: translateY(-4px);
-          box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .template-card:active {
+          transform: translateY(0);
         }
 
         .template-icon {
@@ -2721,6 +2807,26 @@ show_colors: true`;
         .card-preview .mdi {
           color: var(--primary-color);
           font-size: 18px;
+        }
+
+        /* Click-to-add overlay */
+        .click-to-add-overlay {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 100%;
+          z-index: 1;
+          cursor: crosshair;
+        }
+
+        .click-to-add-overlay:hover {
+          background: rgba(var(--rgb-primary-color, 102, 126, 234), 0.05);
+        }
+
+        .lesson-block {
+          z-index: 10;
+          pointer-events: auto;
         }
       </style>
     `;
