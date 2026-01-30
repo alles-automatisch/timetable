@@ -5,6 +5,12 @@ DOMAIN: Final = "timetable"
 STORAGE_VERSION: Final = 1
 STORAGE_KEY: Final = "timetable.storage"
 
+# Panel
+PANEL_NAME: Final = "TimeTable Manager"
+PANEL_ICON: Final = "mdi:table-clock"
+PANEL_URL: Final = "/timetable_panel"
+PANEL_FILENAME: Final = "timetable-panel.js"
+
 # Update interval (in seconds)
 UPDATE_INTERVAL: Final = 60
 

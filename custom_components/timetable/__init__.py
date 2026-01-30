@@ -8,6 +8,7 @@ from homeassistant.core import HomeAssistant
 
 from .const import DOMAIN
 from .coordinator import TimetableCoordinator
+from .view import async_setup_view
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -16,7 +17,8 @@ PLATFORMS = ["sensor", "binary_sensor"]
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     """Set up the TimeTable component (YAML not supported)."""
-    # This integration is configured via config flow only
+    # Register the TimeTable Manager panel
+    await async_setup_view(hass)
     return True
 
 

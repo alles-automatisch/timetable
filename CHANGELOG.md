@@ -5,6 +5,55 @@ All notable changes to TimeTable will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0] - 2026-01-30
+
+### Added - TimeTable Manager Panel 🎉
+
+**Major Feature:** Complete visual management interface inspired by Switch Manager
+
+#### Visual Interface
+- Visual week grid view with 6am-6pm timeline (1px = 1 minute precision)
+- Color-coded lesson blocks with custom icons
+- Tab system (Schedule / Vacations)
+- Statistics dashboard in header
+- Weekend toggle support
+- Mushroom-inspired design system
+
+#### Editing Features
+- **Drag & Drop:** Move lessons between days with snap-to-grid (15-min intervals)
+- **Resize Blocks:** Adjust lesson duration with top/bottom grab handles
+- **Lesson Editor:** Rich modal with subject, time, room, teacher, notes fields
+- **Color Picker:** 12 vibrant preset colors
+- **Icon Picker:** 14 education-themed icons
+- **Full CRUD:** Create, edit, delete lessons and vacations
+
+#### Power User Features
+- **Undo/Redo:** 20-action history with Ctrl+Z / Ctrl+Shift+Z
+- **Templates:** Elementary School, High School, University presets
+- **Import/Export:** Backup and restore schedules as JSON
+- **Keyboard Shortcuts:** Escape closes modals, Ctrl+Z/Ctrl+Shift+Z
+- **Header Action Bar:** Quick access to all features
+
+### Technical
+- New `view.py` for panel registration using HA's built-in panel system
+- Frontend `frontend/timetable-panel.js` (2,440 lines of code)
+- Direct WebSocket API integration (config_entries)
+- Optimized rendering with minimal re-renders
+- Browser support: Chrome, Firefox, Safari (modern evergreen)
+
+### Changed
+- Updated `manifest.json` to version 4.0.0
+- Updated `__init__.py` to register panel on startup
+- Updated `const.py` with panel constants (PANEL_NAME, PANEL_URL, etc.)
+- Integration now appears in sidebar as "⏰ TimeTable Manager"
+
+### Documentation
+- `PANEL_PHASE1_COMPLETE.md` - Phase 1 features and testing guide
+- `PANEL_PHASE2_COMPLETE.md` - Phase 2 features and testing guide
+- `PANEL_PHASE3_COMPLETE.md` - Complete feature documentation
+- `RELEASE_NOTES_v4.0.0.md` - Comprehensive release notes
+- Updated Brain documentation with panel architecture
+
 ## [3.0.1] - 2026-01-29
 
 ### 🔧 Fixed
