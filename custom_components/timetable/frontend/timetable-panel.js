@@ -34,10 +34,13 @@ class TimetablePanel extends HTMLElement {
 
   connectedCallback() {
     console.info(
-      '%c TIMETABLE-PANEL %c 4.0.0 ',
+      '%c TIMETABLE-PANEL %c 4.0.1 ',
       'color: white; background: #667eea; font-weight: 700;',
       'color: #667eea; background: white; font-weight: 700;'
     );
+
+    // Suppress non-critical resource loading errors from HA
+    this._suppressKnownErrors();
 
     // Load Material Design Icons
     this._loadMaterialIcons();
@@ -46,14 +49,43 @@ class TimetablePanel extends HTMLElement {
     this._attachKeyboardShortcuts();
   }
 
+  _suppressKnownErrors() {
+    // Suppress known non-critical errors from Home Assistant's global resource loading
+    const originalError = console.error;
+    console.error = (...args) => {
+      const errorStr = args.join(' ');
+
+      // Filter out card-mod and other non-critical resource errors
+      if (errorStr.includes('card-mod') ||
+          errorStr.includes('lovelace-card-mod') ||
+          (errorStr.includes('Failed to fetch dynamically imported module') && errorStr.includes('card-mod'))) {
+        // Silently ignore these errors - they don't affect our panel
+        console.log('ℹ️ Suppressed non-critical HA resource error (card-mod)');
+        return;
+      }
+
+      // Pass through all other errors
+      originalError.apply(console, args);
+    };
+  }
+
   _loadMaterialIcons() {
     // Check if Material Design Icons are already loaded
-    if (document.querySelector('link[href*="materialdesignicons"]')) return;
+    if (document.querySelector('link[href*="materialdesignicons"]')) {
+      console.log('✓ Material Design Icons already loaded');
+      return;
+    }
 
     // Load MDI CSS
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = 'https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css';
+    link.onload = () => {
+      console.log('✓ Material Design Icons loaded successfully');
+    };
+    link.onerror = () => {
+      console.warn('⚠ Failed to load Material Design Icons from CDN');
+    };
     document.head.appendChild(link);
   }
 
