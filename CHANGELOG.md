@@ -5,6 +5,38 @@ All notable changes to TimeTable will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.1] - 2026-01-30
+
+### Fixed
+- **Broken Icons** - Replaced ha-icon with Material Design Icons (CDN-loaded)
+- **Vacations Tab** - Tab switching now works correctly with proper state tracking
+- **Typography** - Implemented Inter font family for professional appearance
+- **Icon Visibility** - All header buttons now show icons correctly
+- **Tab Click Handler** - Vacations tab is now clickable and switches content
+
+### Added
+- **Dashboard Card Helper** - New button in header to easily add dashboard cards
+  - Modal with pre-generated YAML code
+  - Copy-to-clipboard functionality with visual feedback
+  - Step-by-step instructions
+  - Card feature preview
+- Material Design Icons library (v7.4.47 via CDN)
+- Inter font family (Google Fonts) with weights 400-700
+- Better font smoothing and letter spacing
+
+### Changed
+- Icon system: `<ha-icon>` → `<i class="mdi mdi-*">`
+- Tab switching: CSS-based → State-based rendering
+- Typography: System fonts → Inter font family
+- Active tab tracking with `_activeTab` state
+
+### Technical
+- Added `_loadMaterialIcons()` method for CDN loading
+- Added `_renderDashboardHelper()` modal component
+- Improved CSS with better font stacks
+- Added dashboard helper event listeners
+- Enhanced modal styles for code blocks
+
 ## [4.0.0] - 2026-01-30
 
 ### Added - TimeTable Manager Panel 🎉
