@@ -108,7 +108,10 @@ class TimetablePanel extends HTMLElement {
     link2.onload = () => {
       console.log('✓ Material Design Icons loaded in shadow root');
       // Force re-render to show icons
-      this.render();
+      setTimeout(() => this.render(), 100);
+    };
+    link2.onerror = () => {
+      console.error('❌ Failed to load MDI in shadow root - icons may not display');
     };
     this.shadowRoot.appendChild(link2);
   }
@@ -159,8 +162,34 @@ class TimetablePanel extends HTMLElement {
     if (!this._hass) return null;
 
     // Find the timetable config entry
-    const entries = this._hass.config_entries || [];
-    return entries.find(entry => entry.domain === 'timetable');
+    // Try multiple ways to access config entries
+    let entries = [];
+
+    if (this._hass.config_entries) {
+      entries = this._hass.config_entries;
+    } else if (this._hass.states) {
+      // Fallback: try to get from integration entity
+      const entity = Object.values(this._hass.states).find(
+        state => state.entity_id.startsWith('sensor.timetable_')
+      );
+      if (entity && entity.attributes.config_entry_id) {
+        // Try to construct entry info from entity
+        return {
+          entry_id: entity.attributes.config_entry_id,
+          domain: 'timetable',
+          options: entity.attributes.schedule || {}
+        };
+      }
+    }
+
+    const entry = entries.find(entry => entry.domain === 'timetable');
+
+    // Debug logging
+    if (!entry) {
+      console.warn('TimeTable: Config entry not found. Available entries:', entries.map(e => e.domain));
+    }
+
+    return entry;
   }
 
   _getScheduleData() {
@@ -1757,15 +1786,26 @@ show_colors: true`;
 
     const templates = this._getTemplates();
     const template = templates[templateId];
-    if (!template) return;
+    if (!template) {
+      alert('Template not found');
+      return;
+    }
 
     this._saveState(); // Save for undo
 
     const entryId = this._getConfigEntryId();
-    if (!entryId) return;
+    if (!entryId) {
+      alert('Error: Could not find config entry. Please try refreshing the page.');
+      console.error('Config entry ID not found');
+      return;
+    }
 
     try {
       const entry = this._getConfigEntry();
+      if (!entry) {
+        throw new Error('Config entry not found');
+      }
+
       const currentOptions = { ...entry.options };
 
       await this._hass.callWS({
@@ -1777,8 +1817,9 @@ show_colors: true`;
         }
       });
 
+      console.log('✓ Template applied successfully');
       this._showTemplateSelector = false;
-      setTimeout(() => this.render(), 500);
+      this.render();
     } catch (error) {
       console.error('Failed to apply template:', error);
       alert(`Error applying template: ${error.message}`);
@@ -2371,7 +2412,7 @@ show_colors: true`;
         }
 
         .modal-content {
-          background: var(--card-background-color);
+          background: var(--card-background-color, #ffffff);
           border-radius: 16px;
           width: 90%;
           max-width: 600px;
@@ -2379,6 +2420,13 @@ show_colors: true`;
           display: flex;
           flex-direction: column;
           box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        /* Ensure modal is opaque in all themes */
+        @media (prefers-color-scheme: dark) {
+          .modal-content {
+            background: var(--card-background-color, #1c1c1c);
+          }
         }
 
         .modal-header {
