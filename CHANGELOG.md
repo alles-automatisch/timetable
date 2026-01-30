@@ -5,6 +5,30 @@ All notable changes to TimeTable will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.2] - 2026-01-30
+
+### Fixed
+- **Console Errors** - Suppressed non-critical card-mod 404 errors from Home Assistant
+- **Error Messages** - Filtered out harmless HA resource loading errors
+- **Console Output** - Cleaner console with helpful messages instead of red errors
+
+### Added
+- Error suppression system for known non-critical HA errors
+- Better console logging with success/warning messages for MDI loading
+- `KNOWN_ISSUES.md` documentation with error explanations and solutions
+- FAQ section for common console errors
+
+### Changed
+- Console now shows informative messages instead of scary errors
+- MDI loading feedback (success/error states)
+- Version banner updated to 4.0.1 in panel
+
+### Technical
+- Added `_suppressKnownErrors()` method to filter console.error
+- Intercepts and filters card-mod related errors
+- Preserves all critical error reporting
+- Only suppresses known harmless errors from HA's iframe resource loading
+
 ## [4.0.1] - 2026-01-30
 
 ### Fixed
