@@ -705,7 +705,7 @@ window.customCards.push({
 });
 
 console.info(
-  '%c TIMETABLE-CARD %c 3.0.2 ',
+  '%c TIMETABLE-CARD %c 3.0.3 ',
   'color: white; background: #667eea; font-weight: 700;',
   'color: #667eea; background: white; font-weight: 700;'
 );
